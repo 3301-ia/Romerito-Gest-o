@@ -1,0 +1,37 @@
+<svg viewBox="0 0 450 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&amp;display=swap');
+      .logo-txt {
+        font-family: 'Playfair Display', serif;
+        font-size: 72px;
+        fill: #EE3A14;
+        letter-spacing: 2px;
+      }
+      .logo-swoosh {
+        fill: none;
+        stroke: #EE3A14;
+        stroke-width: 3.5;
+        stroke-linecap: round;
+      }
+      .logo-stem {
+        fill: none;
+        stroke: #EE3A14;
+        stroke-width: 5;
+        stroke-linecap: square;
+      }
+    </style>
+  </defs>
+  
+  <!-- OMERITO text -->
+  <text x="80" y="85" class="logo-txt">OMERITO</text>
+  
+  <!-- R Stem and Loop -->
+  <path d="M 20 85 L 20 28 L 45 28 C 65 28, 65 52, 45 55 L 20 55" class="logo-stem" />
+  
+  <!-- Swash tail of R -->
+  <path d="M 45 55 Q 60 55 75 80 C 100 115, 200 125, 340 90" class="logo-swoosh" />
+  
+  <!-- Top left flourish -->
+  <path d="M 20 28 C -5 28, -5 60, 10 75 C 20 85, 30 75, 25 60 C 20 50, 10 40, 30 28" class="logo-swoosh" stroke-width="2.5" />
+</svg>

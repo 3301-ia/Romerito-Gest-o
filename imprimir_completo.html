@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Impressão Completa Romerito</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: white; color: black; }
+        .print-page { display: block !important; position: relative; min-height: 98vh; padding-bottom: 50px; page-break-after: always; }
+        .print-header { background-color: #141423 !important; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: #fff !important; }
+        .print-sub-header { background-color: #fdf5d3 !important; color: #000 !important; padding: 6px 40px; display: flex; justify-content: space-between; border-top: 2px solid #c5a86d; border-bottom: 2px solid #c5a86d; font-size: 11px; font-weight: 600; }
+        .print-content { padding: 10px 40px; }
+        .print-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .print-table th, .print-table td { border: 1px solid #e0e0e0; padding: 4px 6px; font-size: 11px; color: #000 !important; }
+        .print-table th { background-color: #1c1c36 !important; color: #fff !important; font-weight: 600; text-align: left; padding: 6px; }
+        .print-footer { background-color: #141423 !important; color: #fff !important; display: flex; justify-content: space-between; padding: 10px 40px; font-size: 10px; position: absolute; bottom: 0; left: 0; width: 100%; box-sizing: border-box; }
+        .print-vol-cell { display: flex; gap: 12px; justify-content: center; }
+        .print-vol-circle { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #aaa; }
+        .print-value-filled { font-weight: bold; font-size: 14px; text-align: center; color: #000 !important; }
+    </style>
+</head>
+<body>
+    <div id="print-area"></div>
+    <script src="data.js"></script>
+    <script src="checklist_schema.js"></script>
+    <script>
+        const printArea = document.getElementById('print-area');
+        let printHtml = '';
+
+        // Pegar o ltimo checklist de RESTAURANT_DATA
+        let shiftData = {};
+        let currentDate = "Hoje";
+        let currentShift = "Geral";
+
+        if (RESTAURANT_DATA.checklist_history) {
+            const keys = Object.keys(RESTAURANT_DATA.checklist_history);
+            if (keys.length > 0) {
+                const lastKey = keys[keys.length - 1];
+                shiftData = RESTAURANT_DATA.checklist_history[lastKey];
+                const parts = lastKey.split('|');
+                currentDate = parts[0].split('-').reverse().join('/');
+                currentShift = parts[1] || "Diurno";
+            }
+        }
+
+        // 1. GERAR CHECKLISTS
+        for (const [sectionKey, sectionData] of Object.entries(CHECKLIST_PDF_SCHEMA)) {
+            printHtml += `
+                <div class="print-page">
+                    <div class="print-header">
+                        <div><span class="logo-romerito" style="font-family: 'Playfair Display', serif; font-size:32px;">ROMERITO</span></div>
+                        <div class="print-header-center" style="text-align:center;">
+                            <h2 style="margin:0;">Checklist Dirio  ${sectionData.title}</h2>
+                            <p style="margin:0; font-size:12px; color:#aaa;">Romerito Gastronomia</p>
+                        </div>
+                        <div class="print-header-box" style="border:1px solid #2a2a4a; padding:10px; font-weight:bold;">${sectionData.title}</div>
+                    </div>
+                    <div class="print-sub-header">
+                        <div>Data: <strong>${currentDate}</strong></div>
+                        <div>Turno: <strong>${currentShift}</strong></div>
+                        <div>Responsvel: _________________</div>
+                        <div>Conferido: _________________</div>
+                    </div>
+                    <div class="print-content">
+            `;
+
+            if (sectionData.volumeItems) {
+                printHtml += `
+                    <table class="print-table">
+                        <thead>
+                            <tr><th colspan="5"> PRAA  VOLUME (assinalar: 1 = cheio      0 = vazio)</th></tr>
+                            <tr style="background-color: #2a2a4a !important; font-size: 10px;">
+                                <th style="width:30px;">#</th>
+                                <th>Item / Insumo</th>
+                                <th style="width:140px; text-align:center;">1 &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp; 0</th>
+                                <th style="width:120px;">Recipiente</th>
+                                <th style="width:120px;">Pote / Bag</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sectionData.volumeItems.map(item => {
+                                const val = shiftData[sectionKey] ? shiftData[sectionKey][`vol_${item.id}`] : null;
+                                return `
+                                <tr>
+                                    <td style="text-align:center;">${item.id}</td>
+                                    <td><strong>${item.item}</strong><br><span style="color:#777; font-size:10px;">${item.sub}</span></td>
+                                    <td>
+                                        <div class="print-vol-cell">
+                                            <div class="print-vol-circle" style="${val === '1' ? 'background:#000;' : ''}"></div>
+                                            <div class="print-vol-circle" style="${val === '1/2' ? 'background:#000;' : ''}"></div>
+                                            <div class="print-vol-circle" style="${val === '1/4' ? 'background:#000;' : ''}"></div>
+                                            <div class="print-vol-circle" style="${val === '0' ? 'background:#000;' : ''}"></div>
+                                        </div>
+                                    </td>
+                                    <td></td><td></td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            const counts = sectionData.countItems || sectionData.qtyItems || sectionData.parrillaAcarte || sectionData.passeAcarte;
+            if (counts) {
+                printHtml += `
+                    <table class="print-table">
+                        <thead>
+                            <tr><th colspan="4"> CONTAGEM DIRIA / A LA CARTE</th></tr>
+                            <tr style="background-color: #2a2a4a !important; font-size: 10px;">
+                                <th style="width:30px;">#</th>
+                                <th>Item / Protena</th>
+                                <th style="width:80px; text-align:center;">Qtd</th>
+                                <th style="width:200px;">Obs.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${counts.map(item => `
+                                <tr>
+                                    <td style="text-align:center;">${item.id}</td>
+                                    <td><strong>${item.item}</strong><br><span style="color:#777; font-size:10px;">${item.sub}</span></td>
+                                    <td style="text-align:center;"></td>
+                                    <td></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            printHtml += `
+                    </div>
+                    <div class="print-footer">
+                        <div>ROMERITO GASTRONOMIA</div>
+                        <div>Checklist  ${sectionData.title}</div>
+                        <div>Pg. Impressa via Systme Prcis</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 2. GERAR PLANO DE PRODUO (TODAS AS FTMS COMO TAREFAS DE PRODUO PRA IMPRIMIR E LEVAR)
+        if (RESTAURANT_DATA.fichas_tecnicas) {
+            printHtml += `
+                <div class="print-page">
+                    <div class="print-header">
+                        <div><span class="logo-romerito" style="font-family: 'Playfair Display', serif; font-size:32px;">ROMERITO</span></div>
+                        <div class="print-header-center" style="text-align:center;">
+                            <h2 style="margin:0;">Plano de Produo (Preps)</h2>
+                            <p style="margin:0; font-size:12px; color:#aaa;">Romerito Gastronomia</p>
+                        </div>
+                        <div class="print-header-box" style="border:1px solid #2a2a4a; padding:10px; font-weight:bold; background:#c5a86d !important; color:#000 !important;">PRODUO</div>
+                    </div>
+                    <div class="print-content">
+                        <table class="print-table" style="margin-bottom: 20px;">
+                            <thead>
+                                <tr><th colspan="4" style="background-color: #5a2a2a !important;"> ITENS PARA PRODUO NA COZINHA</th></tr>
+                                <tr style="background-color: #2a2a4a !important; font-size: 11px;">
+                                    <th>Item a Produzir (FTM)</th>
+                                    <th style="width: 100px; text-align: center;">Comando (Lote)</th>
+                                    <th style="width: 150px;">Acondicionar em</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${RESTAURANT_DATA.fichas_tecnicas.map(ftm => `
+                                    <tr>
+                                        <td><strong>${ftm.nome}</strong><br><span style="color: #666 !important; font-size: 10px;">${ftm.armazenamento || 'Cozinha'}</span></td>
+                                        <td style="text-align: center;"><span class="print-value-filled">${ftm.rendimento || '1 Receita'}</span></td>
+                                        <td>${ftm.recipiente || 'GN / Pote'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="print-footer">
+                        <div>ROMERITO GASTRONOMIA</div>
+                        <div>Plano de Produo Completo</div>
+                        <div>Pg. Impressa via Systme Prcis</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        printArea.innerHTML = printHtml;
+        window.onload = function() { setTimeout(() => window.print(), 500); };
+    </script>
+</body>
+</html>

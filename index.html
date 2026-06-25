@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Restaurante Romerito — Système Précis</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen">
+        <div class="splash-logo" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+            <img src="logo.png" alt="Romerito Logo" style="width: 350px; margin-bottom: 5px;">
+            <span class="logo-gastronomia" style="font-size: 16px; letter-spacing: 6px;">GASTRONOMIA</span>
+        </div>
+        <div class="splash-loader"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                    <img src="logo.png" alt="Romerito Logo" style="width: 140px; margin-bottom: 2px;">
+                    <span class="logo-gastronomia" style="font-size: 9px; text-align: center; width: 100%; letter-spacing: 2px;">GASTRONOMIA</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <li class="nav-item active" data-tab="tab-dashboard">
+                    <button><i class="fas fa-chart-pie"></i> Painel Geral</button>
+                </li>
+                <li class="nav-item" data-tab="tab-estoque">
+                    <button><i class="fas fa-boxes"></i> Estoque Dinâmico</button>
+                </li>
+                <li class="nav-item" data-tab="tab-estoque-geral">
+                    <button><i class="fas fa-cubes"></i> Estoque Geral</button>
+                </li>
+                <li class="nav-item" data-tab="tab-cardapio">
+                    <button><i class="fas fa-utensils"></i> Cardápio</button>
+                </li>
+                <li class="nav-item" data-tab="tab-fichas">
+                    <button><i class="fas fa-book-open"></i> FTM (Fichas Técnicas)</button>
+                </li>
+                <li class="nav-item" data-tab="tab-preps">
+                    <button><i class="fas fa-fire-burner"></i> Preps do Dia</button>
+                </li>
+                <li class="nav-item" data-tab="tab-checklist">
+                    <button><i class="fas fa-clipboard-check"></i> Checklist Setores</button>
+                </li>
+                <li class="nav-item" data-tab="tab-folha-req">
+                    <button><i class="fas fa-file-invoice"></i> Folha de Requisição</button>
+                </li>
+                <li class="nav-item" data-tab="tab-movimentacoes">
+                    <button><i class="fas fa-exchange-alt"></i> Movimentações</button>
+                </li>
+                <li class="nav-item" data-tab="tab-equipe">
+                    <button><i class="fas fa-users"></i> Equipe & Metas</button>
+                </li>
+                <li class="nav-item" data-tab="tab-auditoria">
+                    <button><i class="fas fa-boxes"></i> Contagens & Auditoria</button>
+                </li>
+                <li class="nav-item" data-tab="tab-monitoramento">
+                    <button><i class="fas fa-temperature-high"></i> Monitoramento</button>
+                </li>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <div class="status-dot"></div>
+                    <span>Système Précis v2.5</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h2><span class="logo-romerito" style="font-family: 'Playfair Display', serif;">ROMERITO</span></h2>
+                </div>
+            </header>
+
+            <!-- CONTENT BODY -->
+            <div class="content-body">
+                
+                <!-- TAB: DASHBOARD -->
+                <div class="tab-panel active" id="tab-dashboard">
+                    <div class="content-header">
+                        <h2>Painel Geral</h2>
+                        <p>Visão estratégica de Romerito Gastronomia</p>
+                    </div>
+                    <!-- Metrics Cards Grid -->
+                    <div class="metrics-grid">
+                        <div class="glass-card metric-card">
+                            <div class="metric-icon" style="color: var(--accent-gold); background-color: var(--accent-gold-alpha);"><i class="fas fa-dollar-sign"></i></div>
+                            <div class="metric-info">
+                                <label>Valor do Estoque (Estimado)</label>
+                                <span class="value" id="dash-total-value">R$ 0,00</span>
+                            </div>
+                        </div>
+                        <div class="glass-card metric-card">
+                            <div class="metric-icon" style="color: var(--color-danger); background-color: var(--color-danger-bg);"><i class="fas fa-chart-line"></i></div>
+                            <div class="metric-info">
+                                <label>Fuga (KDS vs PDV)</label>
+                                <span class="value" id="dash-fuga-kds">0 unid.</span>
+                            </div>
+                        </div>
+                        <div class="glass-card metric-card">
+                            <div class="metric-icon" style="color: var(--color-info); background-color: var(--color-info-bg);"><i class="fas fa-exchange-alt"></i></div>
+                            <div class="metric-info">
+                                <label>Requisições (Turno)</label>
+                                <span class="value" id="dash-total-reqs">0</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 4. ALERTS -->
+                        <div class="kpi-card glass-card warning-glow">
+                            <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div class="kpi-data">
+                                <h4 style="font-size: 11px;">Itens Críticos (Falta)</h4>
+                                <h3 id="dash-alerts">0</h3>
+                            </div>
+                        </div>
+
+                        <!-- 5. STATUS DA NUVEM (CLOUD SYNC) -->
+                        <div class="kpi-card glass-card" style="border-color: rgba(0, 200, 81, 0.3);">
+                            <div class="kpi-icon"><i class="fas fa-server" style="color: #00C851;"></i></div>
+                            <div class="kpi-data" style="text-align: right;">
+                                <h4 style="font-size: 11px;">Servidor e Conexão (Sheets)</h4>
+                                <h3 id="dash-cloud-status" style="font-size: 16px; margin-top: 4px; color: #00C851;">Conectado</h3>
+                                <p id="dash-last-sync" style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Última Sinc: ---</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts and Alerts -->
+                    <div class="charts-grid">
+                        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="card-header-flex">
+                                <h3><i class="fas fa-history"></i> Últimas Requisições (Saídas)</h3>
+                                <button class="action-btn secondary" style="padding: 4px 8px; font-size: 11px;" onclick="document.querySelector('[data-tab=tab-movimentacoes]').click()">Ver Todas</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Insumo / Item</th>
+                                            <th>Qtd</th>
+                                            <th>Setor Destino</th>
+                                            <th>Responsável</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dash-recent-reqs-body">
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
+                            <div class="card-header-flex" style="width: 100%;">
+                                <h3><i class="fas fa-heartbeat"></i> Saúde do Estoque</h3>
+                            </div>
+                            <div style="position: relative; width: 100%; height: 180px;">
+                                <canvas id="inventoryHealthChart"></canvas>
+                            </div>
+                            <div id="dash-alerts-list" style="width: 100%; margin-top: 16px;">
+                                <!-- Alert notifications -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: ESTOQUE -->
+                <div class="tab-panel" id="tab-estoque">
+                    <div class="tab-header-actions" style="display: flex; justify-content: flex-end; gap: 16px; margin-bottom: 20px;">
+                        <button class="action-btn secondary" onclick="openLaunchInputModal()"><i class="fas fa-plus-circle"></i> Receber Insumo</button>
+                        <button class="action-btn" onclick="openLaunchRequisitionModal()"><i class="fas fa-minus-circle"></i> Retirar Insumo</button>
+                        <button class="action-btn" style="background-color: var(--accent-gold); color: #000;" onclick="openCadastroModal()"><i class="fas fa-box-open"></i> Cadastrar Produto</button>
+                    </div>
+                    <div class="glass-card">
+                        <div class="filters-bar">
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="estoque-search" class="search-input" placeholder="Pesquisar insumo ou categoria...">
+                            </div>
+                            <select id="estoque-category-filter" class="select-filter">
+                                <option value="Todos">Todas as Categorias</option>
+                            </select>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Insumo</th>
+                                        <th>Categoria</th>
+                                        <th>Unidade</th>
+                                        <th>Mínimo</th>
+                                        <th>Máximo</th>
+                                        <th>Atual</th>
+                                        <th>Saídas (Dia)</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="estoque-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: ESTOQUE GERAL (Produção) -->
+                <div class="tab-panel" id="tab-estoque-geral">
+                    <div class="tab-header-actions" style="display: flex; justify-content: flex-end; gap: 16px; margin-bottom: 20px;">
+                        <button class="action-btn secondary" onclick="openLaunchInputModal()"><i class="fas fa-plus-circle"></i> Produção</button>
+                        <button class="action-btn" onclick="openLaunchRequisitionModal()"><i class="fas fa-minus-circle"></i> Descarte/Perda</button>
+                        <button class="action-btn" style="background-color: var(--accent-gold); color: #000;" onclick="openCadastroPrepModal()"><i class="fas fa-flask"></i> Cadastrar Insumo Processado</button>
+                    </div>
+                    <div class="glass-card">
+                        <div class="filters-bar">
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="estoque-geral-search" class="search-input" placeholder="Pesquisar pré-preparo ou molho...">
+                            </div>
+                            <select id="estoque-geral-category-filter" class="select-filter">
+                                <option value="Todos">Todas as Categorias</option>
+                            </select>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Insumo Processado</th>
+                                        <th>Categoria</th>
+                                        <th>Unidade</th>
+                                        <th>Mínimo</th>
+                                        <th>Máximo</th>
+                                        <th>Atual</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="estoque-geral-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: CARDAPIO -->
+                <div class="tab-panel" id="tab-cardapio">
+                    <div class="glass-card">
+                        <div class="section-tabs" style="flex-wrap: wrap; gap: 8px;">
+                            <button class="tab-btn active" data-cardapio-tab="Geral">Cardápio Geral</button>
+                            <button class="tab-btn" data-cardapio-tab="Executivo (Terça)">Executivo (3ª)</button>
+                            <button class="tab-btn" data-cardapio-tab="Executivo (Quarta)">Executivo (4ª)</button>
+                            <button class="tab-btn" data-cardapio-tab="Executivo (Quinta)">Executivo (5ª)</button>
+                            <button class="tab-btn" data-cardapio-tab="Executivo (Sexta)">Executivo (6ª)</button>
+                            <button class="tab-btn" data-cardapio-tab="Cardápio Copa">Copa</button>
+                            <button class="tab-btn" data-cardapio-tab="Menu de Inverno">Inverno</button>
+                        </div>
+                        
+                        <div class="filters-bar">
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="cardapio-search" class="search-input" placeholder="Pesquisar prato, descrição ou categoria...">
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Prato / Item</th>
+                                        <th>Descrição</th>
+                                        <th>Categoria</th>
+                                        <th>Preço Venda</th>
+                                        <th>Disponibilidade</th>
+                                        <th id="cardapio-th-photo-obs">Destaque</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cardapio-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: FICHAS TECNICAS -->
+                <div class="tab-panel" id="tab-fichas">
+                    <!-- List View -->
+                    <div id="recipes-list-view">
+                        <div class="section-tabs" style="margin-bottom: 24px; flex-wrap: wrap; gap: 8px;">
+                            <button class="tab-btn active" data-fichas-tab="Geral">Todas</button>
+                            <button class="tab-btn" data-fichas-tab="Executivo (Terça)">Executivo (3ª)</button>
+                            <button class="tab-btn" data-fichas-tab="Executivo (Quarta)">Executivo (4ª)</button>
+                            <button class="tab-btn" data-fichas-tab="Executivo (Quinta)">Executivo (5ª)</button>
+                            <button class="tab-btn" data-fichas-tab="Executivo (Sexta)">Executivo (6ª)</button>
+                            <button class="tab-btn" data-fichas-tab="Cardápio Copa">Copa</button>
+                            <button class="tab-btn" data-fichas-tab="Menu de Inverno">Inverno</button>
+                        </div>
+                        <div class="filters-bar" style="margin-bottom: 24px;">
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="recipes-search" class="search-input" placeholder="Pesquisar prato ou ingredientes...">
+                            </div>
+                            <select id="recipes-category-filter" class="select-filter">
+                                <option value="Todos">Categorias (Todas)</option>
+                            </select>
+                        </div>
+                        <div class="recipes-grid" id="recipes-grid">
+                            <!-- Recipe cards -->
+                        </div>
+                    </div>
+
+                    <!-- Components View (Tickets View) -->
+                    <div id="recipe-components-view" style="display: none;">
+                        <div class="back-btn-wrapper">
+                            <button class="action-btn secondary" onclick="closeRecipeComponents()"><i class="fas fa-arrow-left"></i> Voltar para Cardápio</button>
+                        </div>
+                        <div style="margin-bottom: 24px;">
+                            <h2 id="components-dish-title" style="font-family: 'Playfair Display', serif; font-size: 32px; color: var(--accent-gold); margin-bottom: 8px;">Nome do Prato</h2>
+                            <p style="color: var(--text-muted);">Selecione o ticket do processo para ver a Ficha Técnica detalhada.</p>
+                        </div>
+                        
+                        <h3 class="ficha-section-title">Subprocessos (Pré-Preparo / Mise en place)</h3>
+                        <div class="recipes-grid" id="components-sub-grid" style="margin-bottom: 32px;">
+                            <!-- Tickets -->
+                        </div>
+                        
+                        <h3 class="ficha-section-title">Processos (Cocção)</h3>
+                        <div class="recipes-grid" id="components-proc-grid" style="margin-bottom: 32px;">
+                            <!-- Tickets -->
+                        </div>
+                        
+                        <h3 class="ficha-section-title">Montagem e Finalização</h3>
+                        <div class="recipes-grid" id="components-assm-grid" style="margin-bottom: 32px;">
+                            <!-- Tickets -->
+                        </div>
+                    </div>
+
+                    <!-- Detail View (Final FTM) -->
+                    <div id="recipe-detail-view" style="display: none;">
+                        <div class="back-btn-wrapper">
+                            <button class="action-btn secondary" onclick="closeRecipeDetail()"><i class="fas fa-arrow-left"></i> Voltar para Tickets</button>
+                        </div>
+                        <div class="ficha-detalhe">
+                            <div class="ficha-header">
+                                <div class="ficha-header-main">
+                                    <h2 id="ficha-title">Lulinha Asiática</h2>
+                                    <p id="ficha-category">Entrada</p>
+                                </div>
+                                <button class="action-btn" id="btn-print-recipe"><i class="fas fa-print"></i> Imprimir Ficha</button>
+                            </div>
+                            
+                            <div class="ficha-meta-grid">
+                                <div class="meta-box">
+                                    <label>Rendimento</label>
+                                    <span id="ficha-yield">1 porção</span>
+                                </div>
+                                <div class="meta-box">
+                                    <label>Tempo de Preparo</label>
+                                    <span id="ficha-time">20 minutos</span>
+                                </div>
+                                <div class="meta-box">
+                                    <label>Responsável Técnico</label>
+                                    <span id="ficha-responsible">Chef Romerito</span>
+                                </div>
+                            </div>
+                            
+                            <div class="ficha-body-grid">
+                                <div>
+                                    <h3 class="ficha-section-title">Ingredientes da Ficha</h3>
+                                    <ul class="ingredients-list" id="ficha-ingredients-list">
+                                        <!-- Ingredients -->
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 class="ficha-section-title">Instruções de Preparo</h3>
+                                    <ul class="instructions-steps" id="ficha-steps-list">
+                                        <!-- Steps -->
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="chef-tip" id="ficha-chef-tip-box">
+                                <i class="fas fa-lightbulb"></i>
+                                <div>
+                                    <strong>Dica da Chef:</strong>
+                                    <p id="ficha-chef-tip-text">Dica...</p>
+                                </div>
+                            </div>
+
+                            <div class="financials-grid">
+                                <div class="financial-box">
+                                    <label>Custo Unitário Total</label>
+                                    <span id="ficha-cost-total">R$ 0.00</span>
+                                </div>
+                                <div class="financial-box">
+                                    <label>Preço Sugerido Venda</label>
+                                    <span id="ficha-price-sale">R$ 0.00</span>
+                                </div>
+                                <div class="financial-box gold">
+                                    <label>Margem de Lucro</label>
+                                    <span id="ficha-margin">0%</span>
+                                </div>
+                                <div class="financial-box">
+                                    <label>Custo Unitário % (CMV)</label>
+                                    <span id="ficha-cmv">0%</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+                                <span>Controle de Qualidade: <strong id="ficha-status-val">OK</strong></span>
+                                <span>Sistema Précis — Gastronomia de Precisão</span>
+                            </div>
+                            
+                            <!-- Analytics Section -->
+                            <div class="card" style="margin-top: 24px; padding: 20px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <h3 style="font-size: 16px; margin: 0; color: var(--primary-color);"><i class="fas fa-chart-line" style="color: var(--accent-gold); margin-right: 8px;"></i> Analytics: Saída nas Últimas Semanas</h3>
+                                    <span style="font-size: 12px; color: var(--text-muted);">Dados simulados</span>
+                                </div>
+                                <div style="height: 250px; position: relative; width: 100%;">
+                                    <canvas id="ftmSalesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: PRODUÇÃO & FTM -->
+                <div class="tab-panel" id="tab-preps">
+                    <div class="content-header">
+                        <h2>Produção e Fichas Técnicas (Preps)</h2>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <select id="forecast-movimento" class="form-control" style="width: auto;">
+                                <option value="baixo">Movimento: Baixo</option>
+                                <option value="medio" selected>Movimento: Médio</option>
+                                <option value="alto">Movimento: Alto</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="renderFTMDatabase()">Ver Banco de FTMs</button>
+                            <button class="btn btn-secondary" onclick="generateProductionPlan()">Gerar Produção Diária</button>
+                            <button class="btn btn-primary" onclick="printPrepPlan()" id="btn-print-preps" style="display:none;">🖨️ Imprimir Preps</button>
+                        </div>
+                    </div>
+
+                    <!-- Sub-view: Automated Prep Plan -->
+                    <div id="prep-plan-view" style="display: none;">
+                        <div class="card" style="margin-bottom: 20px;">
+                            <h3>Plano de Produção Inteligente</h3>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">
+                                Baseado no último Checklist Diário salvo. O sistema calcula automaticamente 1 lote de produção para itens marcados como vazios (0) ou críticos (1/4).
+                            </p>
+                            <div id="automated-prep-list">
+                                <!-- Gerado via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-view: FTM Database Browser -->
+                    <div id="ftm-database-view">
+                        <div class="card">
+                            <h3>Banco de Fichas Técnicas (FTMs)</h3>
+                            <div style="display: grid; grid-template-columns: 300px 1fr; gap: 20px; margin-top: 15px;">
+                                <!-- Lista de Pratos -->
+                                <div style="border-right: 1px solid var(--border-color); padding-right: 15px; height: 60vh; overflow-y: auto;">
+                                    <div id="ftm-list">
+                                        <!-- Rendered via JS -->
+                                    </div>
+                                </div>
+                                
+                                <!-- Detalhes do Prato -->
+                                <div id="ftm-details" style="padding: 10px;">
+                                    <p style="color: var(--text-muted);">Selecione uma FTM à esquerda para ver os detalhes, rendimentos e processos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- TAB: FOLHA DE REQUISICAO -->
+                <div class="tab-panel" id="tab-folha-req">
+                    <div class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <h2>Folha de Requisição Livre</h2>
+                            <p>Adicione itens para solicitar do Estoque Principal para a Cozinha.</p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="action-btn secondary" onclick="printFolhaRequisicao()"><i class="fas fa-print"></i> Imprimir Folha</button>
+                            <button class="action-btn" style="background-color: var(--color-success); color: white;" onclick="aprovarFolhaRequisicao()"><i class="fas fa-check-double"></i> Concluir e Dar Baixa</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-card" style="margin-bottom: 20px;">
+                        <form id="form-add-carrinho" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 16px; align-items: end;">
+                            <div class="form-group" style="margin: 0;">
+                                <label for="carrinho-insumo">Selecionar Insumo</label>
+                                <select id="carrinho-insumo" class="form-control" required></select>
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label for="carrinho-qtd">Quantidade</label>
+                                <input type="number" step="any" id="carrinho-qtd" class="form-control" required>
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label for="carrinho-unidade">Unidade</label>
+                                <input type="text" id="carrinho-unidade" class="form-control" readonly>
+                            </div>
+                            <button type="submit" class="action-btn"><i class="fas fa-plus"></i> Adicionar à Folha</button>
+                        </form>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Insumo</th>
+                                        <th>Qtd a Requisitar</th>
+                                        <th>Saldo Atual Estoque</th>
+                                        <th>Origem</th>
+                                        <th style="text-align: right;">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="folha-req-table-body">
+                                    <!-- Items added to the requisition sheet -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: MOVIMENTACOES -->
+                <div class="tab-panel" id="tab-movimentacoes">
+                    <div class="glass-card">
+                        <div class="section-tabs" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <button class="tab-btn active" data-mov-tab="subtab-requisicoes">Histórico de Requisições (Exits)</button>
+                                <button class="tab-btn" data-mov-tab="subtab-entradas">Histórico de Recebimentos (Inputs)</button>
+                            </div>
+                            <button class="action-btn secondary" style="background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.4); padding: 6px 12px; font-size: 12px; cursor: pointer;" onclick="clearMovimentacoes()">
+                                <i class="fas fa-trash-alt"></i> Apagar Movimentações
+                            </button>
+                        </div>
+
+                        <!-- Requisitions Log -->
+                        <div id="mov-requisicoes-panel">
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Data</th>
+                                            <th>Insumo</th>
+                                            <th>Quantidade</th>
+                                            <th>Setor Destino</th>
+                                            <th>Responsável</th>
+                                            <th>Turno</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="requisicoes-table-body">
+                                        <!-- Requisitions list -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Inputs Log -->
+                        <div id="mov-entradas-panel" style="display: none;">
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Data</th>
+                                            <th>Insumo</th>
+                                            <th>Qtd Recebida</th>
+                                            <th>Fornecedor</th>
+                                            <th>Temp C°</th>
+                                            <th>Nota Fiscal</th>
+                                            <th>Responsável</th>
+                                            <th>Conformidade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="entradas-table-body">
+                                        <!-- Inputs list -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: PREPS -->
+                <div class="tab-panel" id="tab-preps">
+                    <div class="glass-card">
+                        <div class="filters-bar" style="margin-bottom: 24px;">
+                            <h4 style="font-size: 14px; font-weight: 600;">Controle de Produção (Preps)</h4>
+                            <div class="search-input-wrapper">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="preps-search" class="search-input" placeholder="Pesquisar preparação...">
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Setor</th>
+                                        <th>Item / Preparação</th>
+                                        <th>Processo</th>
+                                        <th>Turno</th>
+                                        <th>Responsável</th>
+                                        <th>Status</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="preps-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: CHECKLIST -->
+                <div class="tab-panel" id="tab-checklist">
+                    <div class="glass-card">
+                        <div class="section-tabs" id="checklist-subtabs">
+                            <button class="tab-btn active" data-chk-tab="entradas1">Entradas 1</button>
+                            <button class="tab-btn" data-chk-tab="entradas2">Entradas 2</button>
+                            <button class="tab-btn" data-chk-tab="fogaoPasse">Fogão/Passe</button>
+                            <button class="tab-btn" data-chk-tab="parrilla">Parrilla & Proteínas</button>
+                            <button class="tab-btn" data-chk-tab="fritadeira">Fritadeira</button>
+                        </div>
+                        
+                        <div class="filters-bar" style="margin-top: 16px; margin-bottom: 24px; justify-content: space-between;">
+                            <div style="display: flex; gap: 16px;">
+                                <input type="date" id="chk-date" class="form-control" style="width: 150px;">
+                                <select id="chk-turno" class="form-control" style="width: 200px;">
+                                    <option value="Manhã">☀️ Manhã (08h as 16h20)</option>
+                                    <option value="Troca">🔁 Troca (16h as 16h20)</option>
+                                    <option value="Noite">🌙 Noite (17h as 23h)</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="action-btn secondary" onclick="printChecklistForm()"><i class="fas fa-print"></i> Imprimir Preenchido</button>
+                                <button class="action-btn" onclick="saveChecklistForm()"><i class="fas fa-save"></i> Salvar Turno</button>
+                            </div>
+                        </div>
+
+                        <div id="checklist-form-container">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: EQUIPE & METAS -->
+                <div class="tab-panel" id="tab-equipe">
+                    <!-- Scoreboard -->
+                    <div class="card-header-flex" style="margin-bottom: 24px;">
+                        <h3><i class="fas fa-trophy"></i> Painel de Metas e Desempenho (Comissões)</h3>
+                    </div>
+                    
+                    <div class="team-scoreboard" id="team-scoreboard-grid">
+                        <!-- Score cards -->
+                    </div>
+
+                    <div class="glass-grid" style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+                        <div class="glass-card" style="height: 300px; display: flex; flex-direction: column;">
+                            <h4 style="font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 16px;"><i class="fas fa-chart-bar" style="color: var(--accent-gold); margin-right: 8px;"></i> Comparativo comissão do Mês (Top Colaboradores)</h4>
+                            <div style="flex-grow: 1; position: relative;">
+                                <canvas id="comissoesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: MONITORAMENTO -->
+                <div class="tab-panel" id="tab-monitoramento">
+                    <div class="glass-card">
+                        <div class="section-tabs">
+                            <button class="tab-btn active" data-mon-tab="subtab-temperaturas">Equipamentos & Temperaturas</button>
+                            <button class="tab-btn" data-mon-tab="subtab-quebras">Descartes & Quebras (Perdas)</button>
+                        </div>
+
+                        <!-- Temperatures Panel -->
+                        <div id="mon-temperaturas-panel">
+                            <div class="filters-bar" style="justify-content: space-between;">
+                                <h4 style="font-size: 14px; font-weight: 600;">Monitoramento de Equipamentos ANVISA</h4>
+                                <button class="action-btn" onclick="openAddTempModal()"><i class="fas fa-plus"></i> Medir Temperatura</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Equipamento</th>
+                                            <th>Tipo</th>
+                                            <th>Temp Registrada</th>
+                                            <th>Faixa Aceitável</th>
+                                            <th>Data / Hora</th>
+                                            <th>Responsável</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="temperaturas-table-body">
+                                        <!-- Temps list -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Losses Panel -->
+                        <div id="mon-quebras-panel" style="display: none;">
+                            <div class="filters-bar" style="justify-content: space-between;">
+                                <h4 style="font-size: 14px; font-weight: 600;">Controle de Perdas e Descarte Cozinha</h4>
+                                <button class="action-btn" onclick="openAddQuebraModal()"><i class="fas fa-plus"></i> Registrar Perda / Quebra</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Data</th>
+                                            <th>Ingrediente / Insumo</th>
+                                            <th>Qtd Perda</th>
+                                            <th>Motivo</th>
+                                            <th>Custo (R$)</th>
+                                            <th>Responsável</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="quebras-table-body">
+                                        <!-- Losses list -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+
+                <!-- TAB: AUDITORIA E CONTAGENS -->
+                <div class="tab-panel" id="tab-auditoria">
+                    <div class="content-header">
+                        <h2>Auditoria & Contagens Físicas</h2>
+                        <p>Realize as contagens de estoque da Cozinha (Geral) e do Almoxarifado para confrontar com o sistema.</p>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="section-tabs">
+                            <button class="tab-btn active" data-audit-tab="subtab-contagem-cozinha">Contagem Geral (Cozinha/Praça)</button>
+                            <button class="tab-btn" data-audit-tab="subtab-contagem-estoque">Contagem Estoque (Almoxarifado)</button>
+                            <button class="tab-btn" data-audit-tab="subtab-analise-cmv">Análise de Desvios (CMV)</button>
+                        </div>
+
+                        <!-- Painel de Contagem da Cozinha -->
+                        <div id="audit-cozinha-panel">
+                            <div class="filters-bar" style="justify-content: space-between;">
+                                <h4 style="font-size: 14px; font-weight: 600;">Insumos Manipulados e Operacionais (Praça)</h4>
+                                <button class="action-btn" onclick="salvarContagem('cozinha')"><i class="fas fa-save"></i> Salvar Contagem da Cozinha</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item / Subproduto</th>
+                                            <th>Categoria</th>
+                                            <th>Unidade</th>
+                                            <th>Qtd Contada</th>
+                                            <th>Anotação / Observação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="contagem-cozinha-body">
+                                        <!-- Rendered via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Painel de Contagem do Estoque -->
+                        <div id="audit-estoque-panel" style="display: none;">
+                            <div class="filters-bar" style="justify-content: space-between;">
+                                <h4 style="font-size: 14px; font-weight: 600;">Insumos Brutos e Fechados (Almoxarifado / Câmaras)</h4>
+                                <button class="action-btn" onclick="salvarContagem('estoque')"><i class="fas fa-save"></i> Salvar Contagem do Estoque</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Insumo Bruto / Lote</th>
+                                            <th>Categoria</th>
+                                            <th>Unidade</th>
+                                            <th>Estoque Teórico</th>
+                                            <th>Qtd Física Contada</th>
+                                            <th>Anotação / Observação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="contagem-estoque-body">
+                                        <!-- Rendered via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Painel de Análise (Antiga Auditoria de Estoque) -->
+                        <div id="audit-analise-panel" style="display: none;">
+
+                    <div class="glass-card" style="margin-bottom: 24px;">
+                        <h3 style="margin-bottom: 16px;"><i class="fas fa-cash-register" style="color: var(--accent-gold);"></i> 1. Cruzamento Diário: Vendas (Caixa PDV) vs. Produção (KDS)</h3>
+                        <form id="form-add-venda" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 16px; align-items: end;">
+                            <div class="form-group" style="margin: 0;">
+                                <label for="venda-prato">Selecionar Prato / Preparação</label>
+                                <select id="venda-prato" class="form-control" required></select>
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label for="venda-qtd-caixa">Qtd Vendida (Faturado PDV)</label>
+                                <input type="number" id="venda-qtd-caixa" class="form-control" placeholder="0" required>
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label for="venda-qtd-kds">Qtd Produzida (Monitor KDS)</label>
+                                <input type="number" id="venda-qtd-kds" class="form-control" placeholder="0" required>
+                            </div>
+                            <button type="submit" class="action-btn"><i class="fas fa-plus"></i> Cruzar</button>
+                        </form>
+
+                        <div class="table-container" style="margin-top: 16px;">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Prato / FTM</th>
+                                        <th>Vendidos (PDV)</th>
+                                        <th>Produzidos (KDS)</th>
+                                        <th>Desvio (Cortesia / Fuga)</th>
+                                        <th style="text-align: right;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vendas-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="content-header" style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: none; padding-bottom: 0;">
+                            <h3 style="margin-bottom: 16px;"><i class="fas fa-clipboard-list" style="color: var(--accent-gold);"></i> 2. Contagem Física (Domingo)</h3>
+                            <button class="action-btn" style="background-color: var(--color-danger); color: white;" onclick="aplicarBaixaDesvios()"><i class="fas fa-exclamation-triangle"></i> Dar Baixa nos Desvios</button>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Insumo</th>
+                                        <th>Unidade</th>
+                                        <th>Estoque Atual (Sistema)</th>
+                                        <th>Consumo Teórico (Produção KDS)</th>
+                                        <th>Estoque Teórico Esperado</th>
+                                        <th>Contagem Física (Real)</th>
+                                        <th>Desvio / Quebra Oculta</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="auditoria-table-body">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: RETIRAR INSUMO (REQUISICAO) -->
+    <div class="modal-overlay" id="modal-requisicao">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-minus-circle" style="color: var(--accent-gold);"></i> Nova Requisição (Saída)</h3>
+                <button class="close-modal" onclick="closeModal('modal-requisicao')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="form-requisicao">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="req-insumo">Selecione o Insumo</label>
+                        <select id="req-insumo" class="form-control" required>
+                            <!-- Insumos populated dynamically -->
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="req-qtd">Quantidade Solicitada</label>
+                            <input type="number" step="any" id="req-qtd" class="form-control" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="req-unidade">Unidade</label>
+                            <input type="text" id="req-unidade" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="req-setor">Setor Destino</label>
+                            <select id="req-setor" class="form-control" required>
+                                <option value="COZINHA GERAL">Cozinha Geral</option>
+                                <option value="PASSE">Passe (Plaquetas)</option>
+                                <option value="PARRILLA">Parrilla (Cortes)</option>
+                                <option value="FRITADEIRA">Fritadeira</option>
+                                <option value="SALADAS">Saladas & Frios</option>
+                                <option value="BAR">Bar & Sucos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="req-turno">Turno</label>
+                            <select id="req-turno" class="form-control">
+                                <option value="☀️ Abertura">☀️ Abertura</option>
+                                <option value="🔁 Troca">🔁 Troca</option>
+                                <option value="🌙 Final">🌙 Final</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="req-responsavel">Responsável pela Retirada</label>
+                        <input type="text" id="req-responsavel" class="form-control" placeholder="Nome do colaborador" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="req-motivo">Motivo / Uso do Insumo</label>
+                        <textarea id="req-motivo" class="form-control" placeholder="Ex: Preparação de molhos, reposição parrilla, etc."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="action-btn secondary" onclick="closeModal('modal-requisicao')">Cancelar</button>
+                        <button type="submit" class="action-btn">Confirmar Retirada</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RECEBER INSUMO (ENTRADA) -->
+    <div class="modal-overlay" id="modal-entrada">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle" style="color: var(--color-success);"></i> Novo Recebimento de Insumo</h3>
+                <button class="close-modal" onclick="closeModal('modal-entrada')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="form-entrada">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="input-insumo">Insumo Entregue</label>
+                        <select id="input-insumo" class="form-control" required>
+                            <!-- populated dynamically -->
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="input-qtd">Quantidade Recebida</label>
+                            <input type="number" step="any" id="input-qtd" class="form-control" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-unidade">Unidade</label>
+                            <input type="text" id="input-unidade" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="input-fornecedor">Fornecedor</label>
+                            <input type="text" id="input-fornecedor" class="form-control" placeholder="Nome do fornecedor" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-temp">Temperatura Recebimento (°C)</label>
+                            <input type="number" step="any" id="input-temp" class="form-control" placeholder="Ex: 3">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="input-pesobruto">Peso Bruto (kg)</label>
+                            <input type="number" step="any" id="input-pesobruto" class="form-control" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-pesoliquido">Peso Líquido (kg)</label>
+                            <input type="number" step="any" id="input-pesoliquido" class="form-control" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="input-nf">Número da Nota Fiscal (NF)</label>
+                            <input type="text" id="input-nf" class="form-control" placeholder="Ex: NF-4521">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-responsavel">Recebido por</label>
+                            <input type="text" id="input-responsavel" class="form-control" placeholder="Responsável entrada" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 10px; padding: 12px; background: rgba(255, 187, 51, 0.1); border: 1px solid rgba(255, 187, 51, 0.3); border-radius: 6px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--accent-gold); font-weight: 500;">
+                            <input type="checkbox" id="input-gerar-prep" style="width: 18px; height: 18px; accent-color: var(--accent-gold);">
+                            Este insumo requer Limpeza / Porcionamento Imediato?
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions" style="margin-top: 20px;">
+                        <button type="button" class="action-btn secondary" onclick="closeModal('modal-entrada')">Cancelar</button>
+                        <button type="submit" class="action-btn" style="background-color: var(--color-success); color: white;">Aprovar Recebimento</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CONCLUIR PROCESSAMENTO (BAIXA) -->
+    <div class="modal-overlay" id="modal-concluir-prep">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-random" style="color: #8e44ad;"></i> Conversão de Insumo Processado</h3>
+                <button class="close-modal" onclick="closeModal('modal-concluir-prep')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="form-concluir-prep">
+                <input type="hidden" id="prep-task-id">
+                <div class="modal-body">
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Ao limpar/porcionar este insumo bruto, o que foi gerado para a Praça?</p>
+                    <div class="form-group">
+                        <label for="prep-insumo-gerado">Insumo Processado (Resultado)</label>
+                        <input type="text" id="prep-insumo-gerado" class="form-control" placeholder="Ex: Tatake de Atum Limpo" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="prep-qtd-gerada">Quantidade Rendida</label>
+                            <input type="number" step="any" id="prep-qtd-gerada" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prep-unidade-gerada">Unidade</label>
+                            <select id="prep-unidade-gerada" class="form-control" required>
+                                <option value="kg">kg</option>
+                                <option value="g">g</option>
+                                <option value="un">un</option>
+                                <option value="porções">porções</option>
+                                <option value="L">L</option>
+                                <option value="ml">ml</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions" style="margin-top: 20px;">
+                        <button type="button" class="action-btn secondary" onclick="closeModal('modal-concluir-prep')">Cancelar</button>
+                        <button type="submit" class="action-btn" style="background-color: #8e44ad; color: white;">Finalizar Processamento</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRAR TEMPERATURA -->
+    <div class="modal-overlay" id="modal-temperatura">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-temperature-high" style="color: var(--accent-gold);"></i> Registro de Temperatura ANVISA</h3>
+                <button class="close-modal" onclick="closeModal('modal-temperatura')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="form-temperatura">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="temp-equipamento">Equipamento</label>
+                        <select id="temp-equipamento" class="form-control" required>
+                            <option value="Geladeira Passe 1">Geladeira Passe 1</option>
+                            <option value="Geladeira Passe 2">Geladeira Passe 2</option>
+                            <option value="Geladeira Saladas">Geladeira Saladas</option>
+                            <option value="Câmara Fria Carne">Câmara Fria Carne</option>
+                            <option value="Câmara Fria Laticínios">Câmara Fria Laticínios</option>
+                            <option value="Freezer Fritadeira">Freezer Fritadeira</option>
+                            <option value="Balcão Expositor Sobremesas">Balcão Expositor Sobremesas</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="temp-tipo">Tipo de Conservação</label>
+                            <select id="temp-tipo" class="form-control" required>
+                                <option value="Refrigerado">Refrigerado (1°C a 5°C)</option>
+                                <option value="Congelado">Congelado (-22°C a -15°C)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="temp-valor">Temperatura Medida (°C)</label>
+                            <input type="number" step="any" id="temp-valor" class="form-control" placeholder="Ex: 3.5" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="temp-responsavel">Responsável pela Medição</label>
+                        <input type="text" id="temp-responsavel" class="form-control" placeholder="Nome do responsável" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="action-btn secondary" onclick="closeModal('modal-temperatura')">Cancelar</button>
+                        <button type="submit" class="action-btn">Registrar Medição</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRAR PERDA / QUEBRA -->
+    <div class="modal-overlay" id="modal-quebra">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-trash-alt" style="color: var(--color-danger);"></i> Registro de Perda / Quebra (Descarte)</h3>
+                <button class="close-modal" onclick="closeModal('modal-quebra')"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="form-quebra">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="quebra-insumo">Selecione o Insumo Perdido</label>
+                        <select id="quebra-insumo" class="form-control" required>
+                            <!-- populated dynamically -->
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="quebra-qtd">Quantidade Descartada</label>
+                            <input type="number" step="any" id="quebra-qtd" class="form-control" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quebra-unidade">Unidade</label>
+                            <input type="text" id="quebra-unidade" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="quebra-custo">Custo Financeiro da Perda (R$)</label>
+                            <input type="number" step="any" id="quebra-custo" class="form-control" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quebra-responsavel">Responsável pelo Registro</label>
+                            <input type="text" id="quebra-responsavel" class="form-control" placeholder="Nome do colaborador" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="quebra-motivo">Motivo do Descarte</label>
+                        <select id="quebra-motivo" class="form-control" required>
+                            <option value="Data de validade vencida">Data de validade vencida</option>
+                            <option value="Manipulação incorreta / queimou / estragou">Manipulação incorreta / queimou / estragou</option>
+                            <option value="Apara excessiva no porcionamento">Apara excessiva no porcionamento</option>
+                            <option value="Problema no recebimento / avaria de embalagem">Problema no recebimento / avaria de embalagem</option>
+                            <option value="Queda / quebra física de vasilhame">Queda / quebra física de vasilhame</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="action-btn secondary" onclick="closeModal('modal-quebra')">Cancelar</button>
+                        <button type="submit" class="action-btn" style="background-color: var(--color-danger); color: white;">Confirmar Descarte</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Cadastrar Produto (Estoque Dinâmico) -->
+    <div class="modal-overlay" id="modal-cadastro-produto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-box-open" style="color: var(--accent-gold);"></i> Cadastrar Novo Insumo (Bruto)</h3>
+                <button class="close-modal" onclick="closeModal('modal-cadastro-produto')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-cadastro-produto">
+                    <div class="form-group">
+                        <label>Nome do Insumo</label>
+                        <input type="text" id="cad-prod-nome" class="form-control" required placeholder="Ex: Arroz Agulhinha 5kg">
+                    </div>
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <select id="cad-prod-cat" class="form-control" required>
+                                <option value="Proteínas">Proteínas</option>
+                                <option value="Secos e Mercearia">Secos e Mercearia</option>
+                                <option value="Hortifruti">Hortifruti</option>
+                                <option value="Laticínios">Laticínios</option>
+                                <option value="Bebidas">Bebidas</option>
+                                <option value="Embalagens">Embalagens</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Unidade de Medida</label>
+                            <select id="cad-prod-unid" class="form-control" required>
+                                <option value="Kg">Kg</option>
+                                <option value="Litros">Litros</option>
+                                <option value="Unid.">Unid.</option>
+                                <option value="Pct">Pct</option>
+                                <option value="Caixa">Caixa</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Estoque Mínimo (Alerta)</label>
+                            <input type="number" id="cad-prod-min" class="form-control" required step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Estoque Inicial (Físico)</label>
+                            <input type="number" id="cad-prod-atual" class="form-control" value="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="action-btn secondary" onclick="closeModal('modal-cadastro-produto')">Cancelar</button>
+                        <button type="submit" class="action-btn"><i class="fas fa-check"></i> Cadastrar Produto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Cadastrar Insumo Processado (Estoque Geral) -->
+    <div class="modal-overlay" id="modal-cadastro-prep">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-flask" style="color: var(--accent-gold);"></i> Cadastrar Insumo Processado</h3>
+                <button class="close-modal" onclick="closeModal('modal-cadastro-prep')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-cadastro-prep">
+                    <div class="form-group">
+                        <label>Nome da Produção</label>
+                        <input type="text" id="cad-prep-nome" class="form-control" required placeholder="Ex: Molho Pomodoro (Prep)">
+                    </div>
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <select id="cad-prep-cat" class="form-control" required>
+                                <option value="Molhos">Molhos</option>
+                                <option value="Porcionamento (Proteínas)">Porcionamento (Proteínas)</option>
+                                <option value="Massas / Bases">Massas / Bases</option>
+                                <option value="Sobremesas (Base)">Sobremesas (Base)</option>
+                                <option value="Guarnições">Guarnições</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Unidade de Medida</label>
+                            <select id="cad-prep-unid" class="form-control" required>
+                                <option value="Litros">Litros</option>
+                                <option value="Kg">Kg</option>
+                                <option value="Porção">Porção</option>
+                                <option value="Bandeja">Bandeja</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Estoque Mínimo (Alerta)</label>
+                            <input type="number" id="cad-prep-min" class="form-control" required step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Estoque Inicial</label>
+                            <input type="number" id="cad-prep-atual" class="form-control" value="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="action-btn secondary" onclick="closeModal('modal-cadastro-prep')">Cancelar</button>
+                        <button type="submit" class="action-btn"><i class="fas fa-check"></i> Cadastrar Produção</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script references -->
+    <script src="data.js" charset="UTF-8"></script>
+    <script src="checklist_schema.js" charset="UTF-8"></script>
+    <script src="ftm_database.js" charset="UTF-8"></script>
+    <script src="app.js" charset="UTF-8"></script>
+
+    <!-- Hidden Print Area -->
+    <div id="print-area"></div>
+</body>
+</html>
