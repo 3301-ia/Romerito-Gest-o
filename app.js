@@ -3367,7 +3367,7 @@ function closeAddFichaModal() {
     document.getElementById('modal-add-ficha').classList.remove('active');
 }
 
-document.getElementById('form-add-ficha').addEventListener('submit', function(e) {
+window.submitFicha = function(e) {
     e.preventDefault();
     const originalNome = document.getElementById('ficha-original-nome').value;
     const novoNome = document.getElementById('ficha-nome').value;
