@@ -1816,9 +1816,25 @@ function renderFolhaRequisicao() {
     const tableBody = document.getElementById('folha-req-table-body');
     const selectInsumo = document.getElementById('carrinho-insumo');
     
-    // Populate Select Options (only items that exist in stock)
+    // Unificar insumos dos dois estoques para o dropdown
+    const todosInsumosMap = new Map();
+    state.estoque.forEach(i => { if (i.insumo && !i.insumo.includes('PRODUÇÃO INTERNA')) todosInsumosMap.set(i.insumo, i); });
+    if (state.estoque_geral) {
+        state.estoque_geral.forEach(i => { 
+            if (i.insumo && !todosInsumosMap.has(i.insumo)) todosInsumosMap.set(i.insumo, i); 
+        });
+    }
+    const todosInsumosArray = Array.from(todosInsumosMap.values()).sort((a,b) => a.insumo.localeCompare(b.insumo));
+
+    // Populate Select Options
     selectInsumo.innerHTML = '<option value="">-- Selecione o Insumo --</option>' + 
-        state.estoque.map(item => `<option value="${item.insumo}" data-unit="${item.unidade}">${item.insumo} (Disp: ${item.estoque_atual} ${item.unidade})</option>`).join('');
+        todosInsumosArray.map(item => {
+            const stockDyn = state.estoque.find(e => e.insumo === item.insumo);
+            const stockGer = (state.estoque_geral || []).find(e => e.insumo === item.insumo);
+            const saldoDyn = stockDyn ? (stockDyn.estoque_atual || 0) : 0;
+            const saldoGer = stockGer ? (stockGer.estoque_atual || 0) : 0;
+            return `<option value="${item.insumo}" data-unit="${item.unidade}">${item.insumo} (Coz: ${saldoDyn} | Almox: ${saldoGer})</option>`;
+        }).join('');
 
     // Handle unit autocomplete
     selectInsumo.removeEventListener('change', handleSelectInsumoChange); // prevent dupes
@@ -1829,17 +1845,22 @@ function renderFolhaRequisicao() {
         tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">Folha vazia. Adicione itens acima ou gere pela aba de Preps.</td></tr>`;
     } else {
         tableBody.innerHTML = state.carrinho_requisicao.map((item, index) => {
-            const stockMatch = state.estoque.find(e => e.insumo === item.insumo);
-            const saldo = stockMatch ? stockMatch.estoque_atual : 0;
-            const isAlert = item.qtd > saldo;
+            const stockMatchDyn = state.estoque.find(e => e.insumo === item.insumo);
+            const stockMatchGer = (state.estoque_geral || []).find(e => e.insumo === item.insumo);
+            const saldoDyn = stockMatchDyn ? (stockMatchDyn.estoque_atual || 0) : 0;
+            const saldoGer = stockMatchGer ? (stockMatchGer.estoque_atual || 0) : 0;
+            const unitDyn = stockMatchDyn ? stockMatchDyn.unidade : item.unidade;
+            const unitGer = stockMatchGer ? stockMatchGer.unidade : item.unidade;
+            const isAlert = item.qtd > (saldoDyn + saldoGer);
             
             return `
             <tr style="${isAlert ? 'background: rgba(239, 68, 68, 0.1);' : ''}">
                 <td><strong>${item.insumo}</strong></td>
                 <td style="font-weight: bold; color: ${isAlert ? 'var(--color-danger)' : 'var(--accent-gold)'};">
-                    ${item.qtd} Porções ${item.qtd_estoque && item.qtd_estoque !== item.qtd ? `<br><span style="font-size: 10px; color: var(--text-muted);">(= ${item.qtd_estoque.toFixed(2)} ${item.unidade})</span>` : ''}
+                    ${item.qtd} ${item.unidade} ${item.qtd_estoque && item.qtd_estoque !== item.qtd ? `<br><span style="font-size: 10px; color: var(--text-muted);">(= ${item.qtd_estoque.toFixed(2)} ${item.unidade})</span>` : ''}
                 </td>
-                <td>${saldo} ${item.unidade}</td>
+                <td><strong>${saldoDyn}</strong> ${unitDyn}</td>
+                <td><strong>${saldoGer}</strong> ${unitGer}</td>
                 <td><span class="badge ${item.origem === 'Automático' ? 'info' : 'warning'}">${item.origem}</span></td>
                 <td style="text-align: right;">
                     <button class="action-btn secondary" style="padding: 4px 8px;" onclick="removerDoCarrinho(${index})"><i class="fas fa-trash"></i></button>
