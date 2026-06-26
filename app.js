@@ -3423,4 +3423,4 @@ window.submitFicha = function(e) {
     closeAddFichaModal();
     renderFichasExplorer();
     showToast('Ficha Técnica salva com sucesso!');
-});
+};
