@@ -26,7 +26,8 @@ const CLOUD_DB_URL = "https://script.google.com/macros/s/AKfycbxaR5qWurOMLr31yd3
 async function fetchFromCloud() {
     try {
         console.log("Baixando banco de dados da nuvem...");
-        const response = await fetch(CLOUD_DB_URL);
+        const timestamp = new Date().getTime();
+        const response = await fetch(CLOUD_DB_URL + "?t=" + timestamp);
         const data = await response.json();
         
         if (data && !data.status) { // if not empty or error
@@ -239,11 +240,11 @@ async function initApp() {
     }, 2200);
 }
 
-function saveState() {
+async function saveState() {
     // Sempre salva local primeiro (backup instantâneo/offline)
     localStorage.setItem('romerito_system_state', JSON.stringify(state));
-    // Tenta espelhar na Nuvem em background
-    syncToCloud(state);
+    // Tenta espelhar na Nuvem em background e espera terminar
+    await syncToCloud(state);
 }
 
 // Helper to recalculate stock balances from inputs and requisitions
@@ -1249,15 +1250,15 @@ function restoreChecklistState(section) {
     }
 }
 
-function saveChecklistForm() {
+async function saveChecklistForm() {
     // Format date from YYYY-MM-DD to DD/MM/YYYY
     const [y, m, d] = activeChecklistDate.split('-');
     const formattedDate = `${d}/${m}/${y}`;
     
     // Explicit save call just to be safe
-    saveState();
+    await saveState();
     
-    alert(`âœ… Checklist salvo com sucesso!\n\nðŸ“… Data Associada: ${formattedDate}\nâ�° Turno Associado: ${activeChecklistShift}\n\nTodos os preenchimentos deste turno já estão registrados no banco de dados local.`);
+    alert(`✅ Checklist salvo com sucesso!\n\n📅 Data Associada: ${formattedDate}\n⏳ Turno Associado: ${activeChecklistShift}\n\nTodos os preenchimentos deste turno já estão registrados no banco de dados local e na nuvem.`);
 }
 
 function printChecklistForm() {
@@ -2654,6 +2655,26 @@ window.removerDoCarrinho = removerDoCarrinho;
 // Document Ready
 document.addEventListener('DOMContentLoaded', () => {
     initApp();
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (mobileMenuBtn && sidebar) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+        
+        // Fechar a sidebar ao clicar em um item de menu no mobile
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+    }
 });
 
 // ----------------------------------------------------
