@@ -76,10 +76,21 @@ async function syncToCloud(stateData) {
             method: 'POST',
             mode: 'no-cors', // Fundamental para enviar dados pro Google Sheets sem erro de CORS
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'text/plain'
             },
             body: JSON.stringify(stateData)
         });
+
+        // Tenta salvar no servidor local (se estiver rodando) para atualizar o database.json do repositório
+        try {
+            await fetch('http://localhost:3000/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(stateData)
+            });
+        } catch (e) {
+            // Ignora se o servidor não estiver rodando
+        }
 
         if (badge) {
             badge.innerHTML = '<i class="fas fa-cloud"></i> Sincronizado';
@@ -134,8 +145,18 @@ async function initApp() {
         state.vendas_semana = state.vendas_semana || [];
         state.fichas_tecnicas = state.fichas_tecnicas || [];
 
-        // Atualiza o backup local
+        // Atualiza o backup local do navegador
         localStorage.setItem('romerito_system_state', JSON.stringify(state));
+        
+        // NOVIDADE MÁGICA: Tenta injetar os dados da nuvem direto no database.json físico do computador!
+        try {
+            fetch('http://localhost:3000/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(state)
+            }).catch(e => {});
+        } catch(e) {}
+
         if (document.getElementById('cloud-sync-badge')) {
             document.getElementById('cloud-sync-badge').innerHTML = '<i class="fas fa-cloud"></i> Conectado';
             document.getElementById('cloud-sync-badge').style.color = 'var(--color-success)';
@@ -187,16 +208,6 @@ async function initApp() {
             }
         }
         
-        // As fichas editadas localmente tem prioridade máxima (cache)
-        const cachedRecipes = localStorage.getItem('romerito_recipes');
-        if (cachedRecipes) {
-            try {
-                const parsedRecipes = JSON.parse(cachedRecipes);
-                if (parsedRecipes && parsedRecipes.length > 0) {
-                    state.recipes = parsedRecipes;
-                }
-            } catch(e) {}
-        }
     }
 
     // MIGRATION: Alterar unidade das carnes
