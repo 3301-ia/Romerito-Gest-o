@@ -368,12 +368,18 @@
                             <button class="action-btn secondary" onclick="closeRecipeDetail()"><i class="fas fa-arrow-left"></i> Voltar para Tickets</button>
                         </div>
                         <div class="ficha-detalhe">
+                            <div id="ficha-imagem-container" style="display:none; width: 100%; height: 350px; border-radius: 12px; overflow: hidden; margin-bottom: 24px; border: 1px solid var(--border-color);">
+                                <img id="ficha-imagem-render" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="ficha-header">
                                 <div class="ficha-header-main">
                                     <h2 id="ficha-title">Lulinha Asiática</h2>
                                     <p id="ficha-category">Entrada</p>
                                 </div>
-                                <button class="action-btn" id="btn-print-recipe"><i class="fas fa-print"></i> Imprimir Ficha</button>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="action-btn secondary" onclick="openEditFichaModal()"><i class="fas fa-edit"></i> Editar</button>
+                                    <button class="action-btn" id="btn-print-recipe"><i class="fas fa-print"></i> Imprimir Ficha</button>
+                                </div>
                             </div>
                             
                             <div class="ficha-meta-grid">
@@ -1299,7 +1305,7 @@
     <div class="modal-overlay" id="modal-add-ficha" onclick="if(event.target===this) closeAddFichaModal()">
         <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
             <h3 id="modal-ficha-title"><i class="fas fa-file-alt" style="color: var(--accent-gold); margin-right: 10px;"></i> Nova Ficha Técnica</h3>
-            <form id="form-add-ficha">
+            <form id="form-add-ficha" onsubmit="submitFicha(event)">
                 <input type="hidden" id="ficha-original-nome">
                 <div class="form-group">
                     <label>Nome do Prato / Preparação</label>
