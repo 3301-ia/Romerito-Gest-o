@@ -1833,7 +1833,7 @@ function renderFolhaRequisicao() {
             const stockGer = (state.estoque_geral || []).find(e => e.insumo === item.insumo);
             const saldoDyn = stockDyn ? (stockDyn.estoque_atual || 0) : 0;
             const saldoGer = stockGer ? (stockGer.estoque_atual || 0) : 0;
-            return `<option value="${item.insumo}" data-unit="${item.unidade}">${item.insumo} (Coz: ${saldoDyn} | Almox: ${saldoGer})</option>`;
+            return `<option value="${item.insumo}" data-unit="${item.unidade}">${item.insumo} (Dinâmico: ${saldoDyn} | Geral: ${saldoGer})</option>`;
         }).join('');
 
     // Handle unit autocomplete
