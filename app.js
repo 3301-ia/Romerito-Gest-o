@@ -3,7 +3,7 @@ function parseGoogleDriveImage(url) {
     if (url.includes('drive.google.com/file/d/')) {
         const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
         if (match && match[1]) {
-            return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+            return `https://lh3.googleusercontent.com/d/${match[1]}`;
         }
     }
     return url;
@@ -186,6 +186,17 @@ async function initApp() {
                 console.error("Error reading saved state...", e);
             }
         }
+        
+        // As fichas editadas localmente tem prioridade máxima (cache)
+        const cachedRecipes = localStorage.getItem('romerito_recipes');
+        if (cachedRecipes) {
+            try {
+                const parsedRecipes = JSON.parse(cachedRecipes);
+                if (parsedRecipes && parsedRecipes.length > 0) {
+                    state.recipes = parsedRecipes;
+                }
+            } catch(e) {}
+        }
     }
 
     // MIGRATION: Alterar unidade das carnes
@@ -346,6 +357,7 @@ function renderActiveTab() {
         renderFTMDatabase();
     } else if (activeTab === 'tab-checklist') {
         renderChecklist();
+    renderArquivosCozinha();
     } else if (activeTab === 'tab-folha-req') {
         renderFolhaRequisicao();
     } else if (activeTab === 'tab-movimentacoes') {
@@ -735,18 +747,9 @@ function renderRecipesList() {
 
     grid.innerHTML = filtered.map(r => `
         <div class="glass-card recipe-card" onclick="selectRecipeByName('${encodeURIComponent(r.nome)}')" style="cursor: pointer; display: flex; flex-direction: column;">
-            ${r.imagem_url ? `<div style="width: 100%; height: 140px; border-radius: 8px; margin-bottom: 12px; overflow: hidden; flex-shrink: 0;"><img src="${parseGoogleDriveImage(r.imagem_url)}" style="width: 100%; height: 100%; object-fit: cover;"></div>` : ''}
-            <div>
-                <span class="badge info" style="font-size: 9px; margin-bottom: 8px;">${r.categoria}</span>
-                <h4 style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">${r.nome}</h4>
-            </div>
-            <div class="card-body">
-                <p>${r.dica_chef || 'Receita técnica com porcionamento de precisão.'}</p>
-            </div>
-            <div class="recipe-card-footer">
-                <span><i class="far fa-clock"></i> ${r.tempo_min || '—'} min</span>
-                <span>Rend: <strong>${r.rendimento || '1 porção'}</strong></span>
-                <span class="cost">Margem: ${r.margem_pct || '—'}</span>
+            ${r.imagem_url ? `<div style="width: 100%; height: 180px; border-radius: 8px; margin-bottom: 16px; overflow: hidden; flex-shrink: 0; background-color: var(--surface-light); display: flex; align-items: center; justify-content: center;"><img src="${parseGoogleDriveImage(r.imagem_url)}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.src='https://via.placeholder.com/600x400/18181b/ffffff?text=Falha+na+Imagem'"></div>` : ''}
+            <div style="text-align: center; flex-grow: 1; display: flex; align-items: center; justify-content: center;">
+                <h4 style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0;">${r.nome}</h4>
             </div>
         </div>
     `).join('');
@@ -879,7 +882,7 @@ function renderFichaDetail(comp) {
 
     // Chef Tip
     const chefTipText = document.getElementById('ficha-chef-tip-text');
-    if (r.dica_chef) {
+    if (r.dica_chef && r.dica_chef.trim() !== '') {
         document.getElementById('ficha-chef-tip-box').style.display = 'flex';
         chefTipText.innerText = r.dica_chef;
     } else {
@@ -1061,6 +1064,7 @@ function renderChecklist() {
         dateInput.addEventListener('change', (e) => {
             activeChecklistDate = e.target.value;
             renderChecklist();
+    renderArquivosCozinha();
         });
         dateInput.dataset.listening = "true";
     }
@@ -1068,6 +1072,7 @@ function renderChecklist() {
         shiftInput.addEventListener('change', (e) => {
             activeChecklistShift = e.target.value;
             renderChecklist();
+    renderArquivosCozinha();
         });
         shiftInput.dataset.listening = "true";
     }
@@ -1080,6 +1085,7 @@ function renderChecklist() {
                 btn.classList.add('active');
                 checklistActiveSubtab = btn.getAttribute('data-chk-tab');
                 renderChecklist();
+    renderArquivosCozinha();
             });
             btn.dataset.listening = "true";
         }
@@ -3381,7 +3387,7 @@ function closeAddFichaModal() {
     document.getElementById('modal-add-ficha').classList.remove('active');
 }
 
-window.submitFicha = function(e) {
+window.submitFicha = async function(e) {
     e.preventDefault();
     const originalNome = document.getElementById('ficha-original-nome').value;
     const novoNome = document.getElementById('ficha-nome').value;
@@ -3399,7 +3405,7 @@ window.submitFicha = function(e) {
         rendimento: document.getElementById('ficha-rendimento').value,
         ingredientes: ingredientes,
         modo_preparo: document.getElementById('ficha-preparo').value,
-        dica_chef: document.getElementById('ficha-dica').value,
+        dica_chef: document.getElementById('ficha-dica').value || " ",
         custo_total: document.getElementById('ficha-custo').value || null,
         preco_venda: document.getElementById('ficha-preco').value || null,
         margem_pct: null,
@@ -3407,11 +3413,17 @@ window.submitFicha = function(e) {
     };
 
     if (originalNome) {
+        if (fichaObj.custo_total && fichaObj.preco_venda && parseFloat(fichaObj.preco_venda) > 0) {
+            fichaObj.margem_pct = (((parseFloat(fichaObj.preco_venda) - parseFloat(fichaObj.custo_total)) / parseFloat(fichaObj.preco_venda)) * 100).toFixed(1);
+        } else {
+            fichaObj.margem_pct = null;
+        }
+
         // Edit mode
         const idx = state.recipes.findIndex(r => r.nome === originalNome);
         if (idx !== -1) {
             fichaObj.id = state.recipes[idx].id;
-            fichaObj.margem_pct = state.recipes[idx].margem_pct;
+            fichaObj.margem_pct = fichaObj.margem_pct;
             fichaObj.ficha_ok = state.recipes[idx].ficha_ok;
             state.recipes[idx] = fichaObj;
         }
@@ -3431,8 +3443,53 @@ window.submitFicha = function(e) {
         state.recipes.push(fichaObj);
     }
     
-    saveState();
-    closeAddFichaModal();
-    renderFichasExplorer();
-    showToast('Ficha Técnica salva com sucesso!');
+    // UI Loading state
+    const submitBtn = document.querySelector('#form-add-ficha button[type="submit"]');
+    const originalText = submitBtn.innerText;
+    submitBtn.innerText = 'Salvando Nuvem...';
+    submitBtn.disabled = true;
+
+    try {
+        await saveState(); // This now properly waits for syncToCloud
+    } catch(err) {
+        console.error("Erro ao salvar:", err);
+    } finally {
+        submitBtn.innerText = originalText;
+        submitBtn.disabled = false;
+        closeAddFichaModal();
+        renderFichasExplorer();
+        showToast('Ficha Técnica salva com sucesso!');
+    }
 };
+
+// --- ARQUIVOS COZINHA ---
+const arquivosCozinhaList = [
+    {
+        nome: "Contagem Final - Diária",
+        descricao: "Planilha física para contagem de Final Antecipado do estoque (Entradas, Carnes, Pescados e Executivo).",
+        icone: "fas fa-file-pdf",
+        url: "pdfs/contagem_final_diaria.pdf"
+    }
+];
+
+function renderArquivosCozinha() {
+    const grid = document.getElementById('arquivos-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = arquivosCozinhaList.map(arq => `
+        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 20px;">
+            <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+                <div style="width: 48px; height: 48px; border-radius: 8px; background: rgba(255, 60, 60, 0.1); color: #ff4d4d; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 16px; flex-shrink: 0;">
+                    <i class="${arq.icone}"></i>
+                </div>
+                <div>
+                    <h4 style="color: var(--text-primary); font-size: 16px; font-weight: 600; margin: 0 0 4px 0;">${arq.nome}</h4>
+                    <p style="color: var(--text-muted); font-size: 13px; margin: 0; line-height: 1.4;">${arq.descricao}</p>
+                </div>
+            </div>
+            <a href="${arq.url}" target="_blank" class="action-btn" style="text-align: center; text-decoration: none; display: block; width: 100%;">
+                <i class="fas fa-external-link-alt"></i> Abrir PDF
+            </a>
+        </div>
+    `).join('');
+}

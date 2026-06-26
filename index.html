@@ -368,8 +368,8 @@
                             <button class="action-btn secondary" onclick="closeRecipeDetail()"><i class="fas fa-arrow-left"></i> Voltar para Tickets</button>
                         </div>
                         <div class="ficha-detalhe">
-                            <div id="ficha-imagem-container" style="display:none; width: 100%; height: 350px; border-radius: 12px; overflow: hidden; margin-bottom: 24px; border: 1px solid var(--border-color);">
-                                <img id="ficha-imagem-render" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div id="ficha-imagem-container" style="display:none; width: 100%; height: auto; max-height: 400px; border-radius: 12px; overflow: hidden; margin-bottom: 24px; border: 1px solid var(--border-color); background-color: var(--surface-light); display: flex; align-items: center; justify-content: center;">
+                                <img id="ficha-imagem-render" src="" style="max-width: 100%; max-height: 400px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/800x400/18181b/ffffff?text=Imagem+N%C3%A3o+Autorizada+ou+Indispon%C3%ADvel'">
                             </div>
                             <div class="ficha-header">
                                 <div class="ficha-header-main">
