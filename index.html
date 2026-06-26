@@ -189,7 +189,13 @@
                         <button class="action-btn" style="background-color: var(--accent-gold); color: #000;" onclick="openCadastroModal()"><i class="fas fa-box-open"></i> Cadastrar Produto</button>
                     </div>
                     <div class="glass-card">
-                        <div class="filters-bar">
+                        
+                                <div class="filters-bar" style="justify-content: space-between; margin-bottom: 20px;">
+                                    <h4 style="font-size: 14px; font-weight: 600;">Biblioteca de Fichas Técnicas</h4>
+                                    <button class="action-btn" onclick="openAddFichaModal()"><i class="fas fa-plus"></i> Nova Ficha</button>
+                                </div>
+                                <div class="filters-bar">
+    
                             <div class="search-input-wrapper">
                                 <i class="fas fa-search"></i>
                                 <input type="text" id="estoque-search" class="search-input" placeholder="Pesquisar insumo ou categoria...">
@@ -1288,5 +1294,63 @@
 
     <!-- Hidden Print Area -->
     <div id="print-area"></div>
+
+    <!-- Modal: Cadastrar/Editar Ficha Técnica -->
+    <div class="modal-overlay" id="modal-add-ficha" onclick="if(event.target===this) closeAddFichaModal()">
+        <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <h3 id="modal-ficha-title"><i class="fas fa-file-alt" style="color: var(--accent-gold); margin-right: 10px;"></i> Nova Ficha Técnica</h3>
+            <form id="form-add-ficha">
+                <input type="hidden" id="ficha-original-nome">
+                <div class="form-group">
+                    <label>Nome do Prato / Preparação</label>
+                    <input type="text" id="ficha-nome" required placeholder="Ex: Salmão Curado">
+                </div>
+                <div class="form-group">
+                    <label>Categoria (Aba)</label>
+                    <input type="text" id="ficha-categoria" required placeholder="Ex: Entrada, Prato Principal">
+                </div>
+                <div class="form-group">
+                    <label>URL da Imagem (Link da Foto)</label>
+                    <input type="url" id="ficha-imagem" placeholder="Ex: https://imgur.com/foto.jpg">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label>Tempo (minutos)</label>
+                        <input type="number" id="ficha-tempo" required placeholder="20">
+                    </div>
+                    <div class="form-group">
+                        <label>Rendimento</label>
+                        <input type="text" id="ficha-rendimento" required placeholder="1 porção">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ingredientes (um por linha)</label>
+                    <textarea id="ficha-ingredientes" rows="4" required placeholder="Ex:
+Salmão 1kg
+Sal 200g
+Açúcar 100g"></textarea>
+                    <span style="font-size: 11px; color: var(--text-muted);">O sistema cuidará de organizar na ficha para o cozinheiro.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Modo de Preparo (um passo por linha)</label>
+                    <textarea id="ficha-preparo" rows="5" required placeholder="1. Limpar o peixe
+2. Misturar os secos..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Dica da Chef (Opcional)</label>
+                    <input type="text" id="ficha-dica" placeholder="Ex: O peixe deve estar bem seco.">
+                </div>
+
+                <div style="display: flex; gap: 16px; margin-top: 24px;">
+                    <button type="button" class="action-btn secondary" style="flex: 1;" onclick="closeAddFichaModal()">Cancelar</button>
+                    <button type="submit" class="action-btn" style="flex: 1;">Salvar Ficha</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
+
 </html>

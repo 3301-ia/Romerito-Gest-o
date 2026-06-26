@@ -722,7 +722,8 @@ function renderRecipesList() {
     }
 
     grid.innerHTML = filtered.map(r => `
-        <div class="glass-card recipe-card" onclick="selectRecipeByName('${encodeURIComponent(r.nome)}')" style="cursor: pointer;">
+        <div class="glass-card recipe-card" onclick="selectRecipeByName('${encodeURIComponent(r.nome)}')" style="cursor: pointer; display: flex; flex-direction: column;">
+            ${r.imagem_url ? `<div style="width: 100%; height: 140px; border-radius: 8px; margin-bottom: 12px; overflow: hidden; flex-shrink: 0;"><img src="${r.imagem_url}" style="width: 100%; height: 100%; object-fit: cover;"></div>` : ''}
             <div>
                 <span class="badge info" style="font-size: 9px; margin-bottom: 8px;">${r.categoria}</span>
                 <h4 style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">${r.nome}</h4>
@@ -818,6 +819,17 @@ function renderFichaDetail(comp) {
     // Title & Meta
     document.getElementById('ficha-title').innerText = comp.title;
     document.getElementById('ficha-category').innerText = comp.dishName;
+    
+    const imgContainer = document.getElementById('ficha-imagem-container');
+    const imgRender = document.getElementById('ficha-imagem-render');
+    const recipeObj = state.recipes.find(r => r.nome === comp.title);
+    if (recipeObj && recipeObj.imagem_url) {
+        imgRender.src = recipeObj.imagem_url;
+        imgContainer.style.display = 'block';
+    } else {
+        imgContainer.style.display = 'none';
+        imgRender.src = '';
+    }
     document.getElementById('ficha-yield').innerText = comp.rendimento || '1 porção';
     document.getElementById('ficha-time').innerText = comp.time + " minutos";
     document.getElementById('ficha-responsible').innerText = "Chef Romerito";
@@ -3318,4 +3330,97 @@ document.addEventListener('DOMContentLoaded', () => {
             renderEstoqueGeral();
         });
     }
+});
+
+
+// ----------------------------------------------------
+// FICHAS TÉCNICAS (ADD & EDIT)
+// ----------------------------------------------------
+
+function openAddFichaModal() {
+    document.getElementById('modal-ficha-title').innerHTML = '<i class="fas fa-file-alt" style="color: var(--accent-gold); margin-right: 10px;"></i> Nova Ficha Técnica';
+    document.getElementById('form-add-ficha').reset();
+    document.getElementById('ficha-original-nome').value = '';
+    document.getElementById('modal-add-ficha').classList.add('active');
+}
+
+function openEditFichaModal() {
+    if (!selectedRecipeId) return;
+    const r = state.recipes.find(rec => rec.nome === selectedRecipeId);
+    if (!r) return;
+    
+    document.getElementById('modal-ficha-title').innerHTML = '<i class="fas fa-edit" style="color: var(--accent-gold); margin-right: 10px;"></i> Editar Ficha Técnica';
+    document.getElementById('ficha-original-nome').value = r.nome;
+    document.getElementById('ficha-nome').value = r.nome;
+    document.getElementById('ficha-categoria').value = r.categoria || '';
+    document.getElementById('ficha-imagem').value = r.imagem_url || '';
+    document.getElementById('ficha-tempo').value = r.tempo_min || '';
+    document.getElementById('ficha-rendimento').value = r.rendimento || '';
+    document.getElementById('ficha-ingredientes').value = (r.ingredientes || '').split(' | ').join('\n');
+    document.getElementById('ficha-preparo').value = r.modo_preparo || '';
+    document.getElementById('ficha-dica').value = r.dica_chef || '';
+    
+    document.getElementById('modal-add-ficha').classList.add('active');
+}
+
+function closeAddFichaModal() {
+    document.getElementById('modal-add-ficha').classList.remove('active');
+}
+
+document.getElementById('form-add-ficha').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const originalNome = document.getElementById('ficha-original-nome').value;
+    const novoNome = document.getElementById('ficha-nome').value;
+    
+    // Parse ingredients (split by line, filter empty, join by ' | ')
+    const ingText = document.getElementById('ficha-ingredientes').value;
+    const ingredientes = ingText.split('\n').map(i => i.trim()).filter(Boolean).join(' | ');
+    
+    const fichaObj = {
+        id: Date.now(), // or keep old ID if editing
+        nome: novoNome,
+        categoria: document.getElementById('ficha-categoria').value,
+        imagem_url: document.getElementById('ficha-imagem').value,
+        tempo_min: document.getElementById('ficha-tempo').value,
+        rendimento: document.getElementById('ficha-rendimento').value,
+        ingredientes: ingredientes,
+        modo_preparo: document.getElementById('ficha-preparo').value,
+        dica_chef: document.getElementById('ficha-dica').value,
+        custo_total: null,
+        preco_venda: null,
+        margem_pct: null,
+        ficha_ok: "Não"
+    };
+
+    if (originalNome) {
+        // Edit mode
+        const idx = state.recipes.findIndex(r => r.nome === originalNome);
+        if (idx !== -1) {
+            fichaObj.id = state.recipes[idx].id;
+            fichaObj.custo_total = state.recipes[idx].custo_total;
+            fichaObj.preco_venda = state.recipes[idx].preco_venda;
+            fichaObj.margem_pct = state.recipes[idx].margem_pct;
+            fichaObj.ficha_ok = state.recipes[idx].ficha_ok;
+            state.recipes[idx] = fichaObj;
+        }
+        if (selectedRecipeId === originalNome) {
+            selectedRecipeId = novoNome;
+            // Also update component data if we are in detail view
+            if (selectedComponentData) {
+                selectedComponentData.title = novoNome;
+                selectedComponentData.ingredientes = fichaObj.ingredientes;
+                selectedComponentData.modo_preparo = fichaObj.modo_preparo;
+                selectedComponentData.time = fichaObj.tempo_min;
+                selectedComponentData.rendimento = fichaObj.rendimento;
+            }
+        }
+    } else {
+        // Add mode
+        state.recipes.push(fichaObj);
+    }
+    
+    saveState();
+    closeAddFichaModal();
+    renderFichasExplorer();
+    showToast('Ficha Técnica salva com sucesso!');
 });
