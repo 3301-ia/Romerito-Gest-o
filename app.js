@@ -2696,6 +2696,24 @@ function setupEventListeners() {
 
     // 10. Print Recipe Handler
     document.getElementById('btn-print-recipe').addEventListener('click', () => {
+        const printArea = document.getElementById('print-area');
+        const recipeContent = document.getElementById('recipe-detail-content').innerHTML;
+        
+        const printHtml = `
+            <div class="print-page">
+                <div class="print-header" style="margin-bottom: 20px;">
+                    <div><span class="logo-romerito" style="font-family: 'Playfair Display', serif; font-size: 24px;">ROMERITO</span></div>
+                    <div class="print-header-center">
+                        <h2>Ficha Técnica de Preparo</h2>
+                    </div>
+                </div>
+                <div class="print-content" style="padding: 20px;">
+                    ${recipeContent}
+                </div>
+            </div>
+        `;
+        
+        printArea.innerHTML = printHtml;
         window.print();
     });
 }

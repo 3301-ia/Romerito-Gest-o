@@ -578,7 +578,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 180px;
+    min-height: 240px;
 }
 
 .recipe-card .card-body {
@@ -1191,25 +1191,26 @@ textarea.form-control {
 @media print {
     body {
         background: white !important;
+        color: black !important;
         margin: 0;
         padding: 0;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
-    .app-container, .modal, #splash-screen {
+    .app-container, .modal, .modal-overlay, #splash-screen {
         display: none !important;
     }
     #print-area {
         display: block !important;
-        position: absolute;
-        left: 0;
-        top: 0;
+        position: static !important;
         width: 100%;
         margin: 0;
         padding: 0;
+        color: black !important;
     }
     #print-area * {
         visibility: visible;
+        color: black !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
