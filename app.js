@@ -1,3 +1,15 @@
+function parseGoogleDriveImage(url) {
+    if (!url) return '';
+    if (url.includes('drive.google.com/file/d/')) {
+        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+            return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+        }
+    }
+    return url;
+}
+
+// Ensure the variables exist for the first app logic
 // Core Application State
 let state = {
     cardapio: [],
@@ -723,7 +735,7 @@ function renderRecipesList() {
 
     grid.innerHTML = filtered.map(r => `
         <div class="glass-card recipe-card" onclick="selectRecipeByName('${encodeURIComponent(r.nome)}')" style="cursor: pointer; display: flex; flex-direction: column;">
-            ${r.imagem_url ? `<div style="width: 100%; height: 140px; border-radius: 8px; margin-bottom: 12px; overflow: hidden; flex-shrink: 0;"><img src="${r.imagem_url}" style="width: 100%; height: 100%; object-fit: cover;"></div>` : ''}
+            ${r.imagem_url ? `<div style="width: 100%; height: 140px; border-radius: 8px; margin-bottom: 12px; overflow: hidden; flex-shrink: 0;"><img src="${parseGoogleDriveImage(r.imagem_url)}" style="width: 100%; height: 100%; object-fit: cover;"></div>` : ''}
             <div>
                 <span class="badge info" style="font-size: 9px; margin-bottom: 8px;">${r.categoria}</span>
                 <h4 style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">${r.nome}</h4>
@@ -824,7 +836,7 @@ function renderFichaDetail(comp) {
     const imgRender = document.getElementById('ficha-imagem-render');
     const recipeObj = state.recipes.find(r => r.nome === comp.title);
     if (recipeObj && recipeObj.imagem_url) {
-        imgRender.src = recipeObj.imagem_url;
+        imgRender.src = parseGoogleDriveImage(recipeObj.imagem_url);
         imgContainer.style.display = 'block';
     } else {
         imgContainer.style.display = 'none';
@@ -875,8 +887,8 @@ function renderFichaDetail(comp) {
     }
 
     // Financials
-    document.getElementById('ficha-cost-total').innerText = r.custo_total != null ? `R$ ${parseFloat(r.custo_total).toFixed(2)}` : '—';
-    document.getElementById('ficha-price-sale').innerText = r.preco_venda != null ? `R$ ${parseFloat(r.preco_venda).toFixed(2)}` : '—';
+    document.getElementById('ficha-cost-total').innerText = (r.custo_total != null && r.custo_total !== '') ? `R$ ${parseFloat(r.custo_total).toFixed(2)}` : '—';
+    document.getElementById('ficha-price-sale').innerText = (r.preco_venda != null && r.preco_venda !== '') ? `R$ ${parseFloat(r.preco_venda).toFixed(2)}` : '—';
     
     // Margin percentage
     let margin = r.margem_pct;
@@ -3359,6 +3371,8 @@ function openEditFichaModal() {
     document.getElementById('ficha-ingredientes').value = (r.ingredientes || '').split(' | ').join('\n');
     document.getElementById('ficha-preparo').value = r.modo_preparo || '';
     document.getElementById('ficha-dica').value = r.dica_chef || '';
+    document.getElementById('ficha-custo').value = r.custo_total || '';
+    document.getElementById('ficha-preco').value = r.preco_venda || '';
     
     document.getElementById('modal-add-ficha').classList.add('active');
 }
@@ -3386,8 +3400,8 @@ window.submitFicha = function(e) {
         ingredientes: ingredientes,
         modo_preparo: document.getElementById('ficha-preparo').value,
         dica_chef: document.getElementById('ficha-dica').value,
-        custo_total: null,
-        preco_venda: null,
+        custo_total: document.getElementById('ficha-custo').value || null,
+        preco_venda: document.getElementById('ficha-preco').value || null,
         margem_pct: null,
         ficha_ok: "Não"
     };
@@ -3397,8 +3411,6 @@ window.submitFicha = function(e) {
         const idx = state.recipes.findIndex(r => r.nome === originalNome);
         if (idx !== -1) {
             fichaObj.id = state.recipes[idx].id;
-            fichaObj.custo_total = state.recipes[idx].custo_total;
-            fichaObj.preco_venda = state.recipes[idx].preco_venda;
             fichaObj.margem_pct = state.recipes[idx].margem_pct;
             fichaObj.ficha_ok = state.recipes[idx].ficha_ok;
             state.recipes[idx] = fichaObj;
