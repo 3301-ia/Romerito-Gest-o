@@ -771,7 +771,17 @@ function selectRecipeByName(encodedName) {
     const rec = state.recipes.find(r => r.nome === nome);
     if (rec) {
         selectedRecipeId = rec.nome; // Use nome as the unique identifier
-        selectedComponentData = null;
+        selectedComponentData = {
+            type: 'Ficha Técnica',
+            typeClass: 'final',
+            typeIcon: 'fa-check-circle',
+            parentRecipe: rec,
+            ingredients: rec.ingredientes,
+            steps: rec.preparo,
+            tempo: rec.tempo,
+            rendimento: rec.rendimento,
+            isFinal: true
+        };
         renderFichasExplorer();
     }
 }
@@ -788,6 +798,7 @@ function selectComponentIndex(idx) {
 }
 
 function closeRecipeDetail() {
+    selectedRecipeId = null;
     selectedComponentData = null;
     renderFichasExplorer();
 }
