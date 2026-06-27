@@ -1343,7 +1343,7 @@ function printChecklistForm() {
                         <tr>
                             <th colspan="5">â–  PRAÇA — VOLUME (assinalar: 1 = cheio · ½ · ¼ · 0 = vazio)</th>
                         </tr>
-                        <tr style="background-color: #2a2a4a !important; font-size: 10px;">
+                        <tr style="background-color: #2a2a4a !important; color: white !important; font-size: 10px;">
                             <th style="width:30px;">#</th>
                             <th>Item / Insumo</th>
                             <th style="width:140px; text-align:center;">1 &nbsp;&nbsp; ½ &nbsp;&nbsp; ¼ &nbsp;&nbsp; 0</th>
@@ -1389,7 +1389,7 @@ function printChecklistForm() {
                         <tr>
                             <th colspan="4">â–  ${countTitle}</th>
                         </tr>
-                        <tr style="background-color: #2a2a4a !important; font-size: 10px;">
+                        <tr style="background-color: #2a2a4a !important; color: white !important; font-size: 10px;">
                             <th style="width:30px;">#</th>
                             <th>Item / Proteína</th>
                             <th style="width:80px; text-align:center;">Uni. / Pct.</th>

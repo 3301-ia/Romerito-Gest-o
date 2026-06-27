@@ -1210,7 +1210,6 @@ textarea.form-control {
     }
     #print-area * {
         visibility: visible;
-        color: black !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
