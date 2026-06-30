@@ -306,6 +306,201 @@ async function initApp() {
             }
         }
         
+// Fetch Helper
+async function fetchFromCloud() {
+    try {
+        console.log("Baixando banco de dados da nuvem...");
+        const timestamp = new Date().getTime();
+        const response = await fetch(CLOUD_DB_URL + "?t=" + timestamp);
+        const data = await response.json();
+        
+        if (data && !data.status) { // if not empty or error
+            console.log("Dados carregados da nuvem com sucesso!");
+            if (document.getElementById('dash-last-sync')) {
+                const now = new Date();
+                const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                document.getElementById('dash-last-sync').innerText = 'Última Sinc: Hoje, ' + timeStr;
+            }
+            return data;
+        }
+    } catch (e) {
+        console.warn("Falha de conexão com a Nuvem. Tentando cache local...", e);
+    }
+    return null;
+}
+
+// Sync Helper
+// Sync Helper
+async function syncToCloud(stateData) {
+    if (!CLOUD_DB_URL) return;
+    
+    // Header Badge
+    const headerTitle = document.querySelector('.top-header');
+    let badge = document.getElementById('cloud-sync-badge');
+    if (headerTitle && badge) {
+        badge.innerHTML = '<i class="fas fa-sync fa-spin"></i> Sincronizando...';
+        badge.style.color = 'var(--text-muted)';
+    }
+
+    try {
+        // Build payload mimicking the form submission
+        const payload = {
+            method: 'POST',
+            body: JSON.stringify(stateData)
+        };
+        // Use no-cors mode to send data to Apps Script
+        await fetch(CLOUD_DB_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Fundamental para enviar dados pro Google Sheets sem erro de CORS
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: JSON.stringify(stateData)
+        });
+
+        // Tenta salvar no servidor local (se estiver rodando no computador)
+        try {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                await fetch('http://localhost:3000/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(stateData)
+                });
+            }
+        } catch (e) {
+            // Ignora se o servidor não estiver rodando
+        }
+
+        if (badge) {
+            badge.innerHTML = '<i class="fas fa-cloud"></i> Sincronizado';
+            badge.style.color = 'var(--color-success)';
+        }
+        if (document.getElementById('dash-last-sync')) {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('dash-last-sync').innerText = 'Última Sinc: Hoje, ' + timeStr;
+        }
+    } catch (e) {
+        console.warn("Erro ao sincronizar com a Nuvem.", e);
+        if (badge) {
+            badge.innerHTML = '<i class="fas fa-cloud"></i> Offline';
+            badge.style.color = 'var(--color-danger)';
+        }
+    }
+}
+
+// Initialize State
+async function initApp() {
+    // 1. Mostrar status de carregamento
+    const headerTitle = document.querySelector('.top-header');
+    if (headerTitle) {
+        let badge = document.createElement('div');
+        badge.id = 'cloud-sync-badge';
+        badge.style = "font-size: 11px; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); margin-left: auto;";
+        badge.innerHTML = '<i class="fas fa-sync fa-spin"></i> Conectando à Nuvem...';
+        headerTitle.appendChild(badge);
+    }
+
+    // 2. Tentar baixar da Nuvem
+    let cloudData = await fetchFromCloud();
+
+    if (cloudData) {
+        // Sucesso na Nuvem! Usa os dados da nuvem.
+        state = cloudData;
+        
+        // Ensure all arrays exist in case cloud is missing them
+        state.estoque = state.estoque || [];
+        state.estoque_geral = state.estoque_geral || [];
+        state.cardapio = state.cardapio || [];
+        state.cardapio_variados = state.cardapio_variados || [];
+        state.recipes = state.recipes || [];
+        state.pedidos = state.pedidos || [];
+        state.entradas = state.entradas || [];
+        state.porcionamento = state.porcionamento || [];
+        state.comissoes = state.comissoes || [];
+        state.checklist_setores = state.checklist_setores || [];
+        state.preps_historico = state.preps_historico || [];
+        state.checklist_history = state.checklist_history || {};
+        state.tarefas_pendentes = state.tarefas_pendentes || [];
+        state.carrinho_requisicao = state.carrinho_requisicao || [];
+        state.requisicoes = state.requisicoes || [];
+        state.temperaturas = state.temperaturas || [];
+        state.quebras = state.quebras || [];
+        state.vendas_semana = state.vendas_semana || [];
+        state.fichas_tecnicas = state.fichas_tecnicas || [];
+
+        // Atualiza o backup local do navegador
+        localStorage.setItem('romerito_system_state', JSON.stringify(state));
+        
+        // NOVIDADE MÁGICA: Tenta injetar os dados da nuvem direto no database.json físico do computador!
+        try {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                fetch('http://localhost:3000/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(state)
+                }).catch(e => {});
+            }
+        } catch(e) {}
+
+        if (document.getElementById('cloud-sync-badge')) {
+            document.getElementById('cloud-sync-badge').innerHTML = '<i class="fas fa-cloud"></i> Conectado';
+            document.getElementById('cloud-sync-badge').style.color = 'var(--color-success)';
+        }
+    } else {
+        // 3. Fallback para LocalStorage se a nuvem falhar ou estiver vazia
+        if (typeof RESTAURANT_DATA !== 'undefined') {
+            state.cardapio = RESTAURANT_DATA.cardapio || [];
+            state.cardapio_variados = RESTAURANT_DATA.cardapio_variados || [];
+            state.estoque = RESTAURANT_DATA.estoque || [];
+            state.estoque_geral = RESTAURANT_DATA.estoque_geral || [];
+    if (RESTAURANT_DATA.recipes) {
+        RESTAURANT_DATA.recipes.forEach(dbItem => {
+            const localItem = state.recipes.find(i => i.nome === dbItem.nome);
+            if (!localItem) {
+                state.recipes.push(dbItem);
+            }
+        });
+    }
+            state.pedidos = [];
+            state.entradas = [];
+            state.porcionamento = [];
+            state.comissoes = [];
+            state.checklist_setores = RESTAURANT_DATA.checklist_setores || [];
+            state.preps_historico = [];
+            state.tarefas_pendentes = [];
+            state.carrinho_requisicao = [];
+            state.vendas_semana = [];
+            state.fichas_tecnicas = RESTAURANT_DATA.fichas_tecnicas || [];
+        }
+
+        const savedState = localStorage.getItem('romerito_system_state');
+        if (savedState) {
+            try {
+                const parsed = JSON.parse(savedState);
+                if (parsed.estoque) state.estoque = parsed.estoque;
+                if (parsed.cardapio) state.cardapio = parsed.cardapio;
+                if (parsed.cardapio_variados) state.cardapio_variados = parsed.cardapio_variados;
+                if (parsed.estoque) state.estoque = parsed.estoque;
+                if (parsed.estoque_geral) state.estoque_geral = parsed.estoque_geral;
+                if (parsed.requisicoes) state.requisicoes = parsed.requisicoes;
+                if (parsed.temperaturas) state.temperaturas = parsed.temperaturas;
+                if (parsed.quebras) state.quebras = parsed.quebras;
+                if (parsed.entradas) state.entradas = parsed.entradas;
+                if (parsed.comissoes) state.comissoes = parsed.comissoes;
+                if (parsed.pedidos) state.pedidos = parsed.pedidos;
+                if (parsed.checklist_setores) state.checklist_setores = parsed.checklist_setores;
+                if (parsed.preps_historico) state.preps_historico = parsed.preps_historico;
+                if (parsed.checklist_history) state.checklist_history = parsed.checklist_history;
+                if (parsed.tarefas_pendentes) state.tarefas_pendentes = parsed.tarefas_pendentes;
+                if (parsed.carrinho_requisicao) state.carrinho_requisicao = parsed.carrinho_requisicao;
+                if (parsed.vendas_semana) state.vendas_semana = parsed.vendas_semana;
+                if (parsed.fichas_tecnicas) state.fichas_tecnicas = parsed.fichas_tecnicas;
+            } catch (e) {
+                console.error("Error reading saved state...", e);
+            }
+        }
+        
     }
 
     // MIGRATION: Alterar unidade das carnes
@@ -316,48 +511,48 @@ async function initApp() {
     });
 
     // MIGRATION / INJECTION: Garante que novos itens do data.js entrem no sistema (seja nuvem ou local)
-    if (RESTAURANT_DATA.estoque) {
-        RESTAURANT_DATA.estoque.forEach(dbItem => {
-            const localItem = state.estoque.find(i => i.insumo === dbItem.insumo);
-            if (localItem) {
-                if (localItem.saldo_inicial === undefined || localItem.saldo_inicial === 0) {
-                    localItem.saldo_inicial = parseFloat(dbItem.est_maximo) || 20;
+    if (typeof RESTAURANT_DATA !== 'undefined') {
+        if (RESTAURANT_DATA.estoque) {
+            RESTAURANT_DATA.estoque.forEach(dbItem => {
+                const localItem = state.estoque.find(i => i.insumo === dbItem.insumo);
+                if (localItem) {
+                    if (localItem.saldo_inicial === undefined || localItem.saldo_inicial === 0) {
+                        localItem.saldo_inicial = parseFloat(dbItem.est_maximo) || 20;
+                    }
+                } else {
+                    if (dbItem.saldo_inicial === undefined || dbItem.saldo_inicial === 0) {
+                        dbItem.saldo_inicial = parseFloat(dbItem.est_maximo) || 20;
+                    }
+                    state.estoque.push(dbItem);
                 }
-            } else {
-                if (dbItem.saldo_inicial === undefined || dbItem.saldo_inicial === 0) {
-                    dbItem.saldo_inicial = parseFloat(dbItem.est_maximo) || 20;
+            });
+        }
+
+        // Injetar também novos pratos no cardápio de inverno/variados
+        if (RESTAURANT_DATA.cardapio_variados) {
+            RESTAURANT_DATA.cardapio_variados.forEach(dbItem => {
+                const localItem = state.cardapio_variados.find(i => i.prato === dbItem.prato);
+                if (!localItem) {
+                    state.cardapio_variados.unshift(dbItem);
                 }
-                state.estoque.push(dbItem);
-            }
-        });
-    }
+            });
+        }
 
-    if (RESTAURANT_DATA.cardapio_variados) {
-        RESTAURANT_DATA.cardapio_variados.forEach(dbItem => {
-            const localItem = state.cardapio_variados.find(i => i.prato === dbItem.prato);
-            if (!localItem) {
-                state.cardapio_variados.unshift(dbItem);
-            }
-        });
-    }
-    // Mesclar receitas do data.js com as receitas locais (para não perder as edições)
-    if (RESTAURANT_DATA.recipes) {
-        RESTAURANT_DATA.recipes.forEach(dbItem => {
-            const localItem = state.recipes.find(i => i.nome === dbItem.nome);
-            if (!localItem) {
-                state.recipes.push(dbItem);
-            }
-        });
-    }
+        // Mesclar receitas do data.js com as receitas locais (para não perder as edições)
+        if (RESTAURANT_DATA.recipes) {
+            RESTAURANT_DATA.recipes.forEach(dbItem => {
+                const localItem = state.recipes.find(i => i.nome === dbItem.nome);
+                if (!localItem) {
+                    state.recipes.push(dbItem);
+                }
+            });
+        }
 
-    // Injetar fichas técnicas do data.js caso não existam no state
-    if (!state.fichas_tecnicas || state.fichas_tecnicas.length === 0) {
-        state.fichas_tecnicas = RESTAURANT_DATA.fichas_tecnicas || [];
-    } else {
         if (RESTAURANT_DATA.fichas_tecnicas) {
             RESTAURANT_DATA.fichas_tecnicas.forEach(dbItem => {
-                const index = state.fichas_tecnicas.findIndex(i => i.nome === dbItem.nome);
-                if (index > -1) {
+                const index = state.fichas_tecnicas.findIndex(i => i.id === dbItem.id);
+                if (index !== -1) {
+                    // Update existing
                     state.fichas_tecnicas[index] = dbItem;
                 } else {
                     state.fichas_tecnicas.push(dbItem);
@@ -367,8 +562,6 @@ async function initApp() {
     }
 
     recalculateStockBalances();
-    saveState();
-    setupRouting();
     setupEventListeners();
     
     renderActiveTab();
