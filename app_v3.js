@@ -345,25 +345,24 @@ async function initApp() {
             if (!localItem) {
                 state.recipes.push(dbItem);
             }
-        });
-    }
-
     // Injetar fichas técnicas do data.js caso não existam no state
     if (!state.fichas_tecnicas || state.fichas_tecnicas.length === 0) {
         state.fichas_tecnicas = RESTAURANT_DATA.fichas_tecnicas || [];
     } else {
-        // Atualiza as fichas locais com as do data.js (para o caso de alterações)
-        RESTAURANT_DATA.fichas_tecnicas.forEach(dbItem => {
-            const index = state.fichas_tecnicas.findIndex(i => i.nome === dbItem.nome);
-            if (index > -1) {
-                state.fichas_tecnicas[index] = dbItem;
-            } else {
-                state.fichas_tecnicas.push(dbItem);
-            }
+        if (RESTAURANT_DATA.fichas_tecnicas) {
+            RESTAURANT_DATA.fichas_tecnicas.forEach(dbItem => {
+                const index = state.fichas_tecnicas.findIndex(i => i.nome === dbItem.nome);
+                if (index > -1) {
+                    state.fichas_tecnicas[index] = dbItem;
+                } else {
+                    state.fichas_tecnicas.push(dbItem);
+                }
+            });
+        }
+    }
+    recalculateStockBalances();
         });
     }
-
-    recalculateStockBalances();
     saveState();
     setupRouting();
     setupEventListeners();
