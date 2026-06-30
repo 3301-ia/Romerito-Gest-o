@@ -345,6 +345,9 @@ async function initApp() {
             if (!localItem) {
                 state.recipes.push(dbItem);
             }
+        });
+    }
+
     // Injetar fichas técnicas do data.js caso não existam no state
     if (!state.fichas_tecnicas || state.fichas_tecnicas.length === 0) {
         state.fichas_tecnicas = RESTAURANT_DATA.fichas_tecnicas || [];
@@ -360,9 +363,8 @@ async function initApp() {
             });
         }
     }
+
     recalculateStockBalances();
-        });
-    }
     saveState();
     setupRouting();
     setupEventListeners();
