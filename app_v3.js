@@ -316,28 +316,30 @@ async function initApp() {
     });
 
     // MIGRATION / INJECTION: Garante que novos itens do data.js entrem no sistema (seja nuvem ou local)
-    RESTAURANT_DATA.estoque.forEach(dbItem => {
-        const localItem = state.estoque.find(i => i.insumo === dbItem.insumo);
-        if (localItem) {
-            if (localItem.saldo_inicial === undefined || localItem.saldo_inicial === 0) {
-                localItem.saldo_inicial = parseFloat(dbItem.est_maximo) || 20;
+    if (RESTAURANT_DATA.estoque) {
+        RESTAURANT_DATA.estoque.forEach(dbItem => {
+            const localItem = state.estoque.find(i => i.insumo === dbItem.insumo);
+            if (localItem) {
+                if (localItem.saldo_inicial === undefined || localItem.saldo_inicial === 0) {
+                    localItem.saldo_inicial = parseFloat(dbItem.est_maximo) || 20;
+                }
+            } else {
+                if (dbItem.saldo_inicial === undefined || dbItem.saldo_inicial === 0) {
+                    dbItem.saldo_inicial = parseFloat(dbItem.est_maximo) || 20;
+                }
+                state.estoque.push(dbItem);
             }
-        } else {
-            if (dbItem.saldo_inicial === undefined || dbItem.saldo_inicial === 0) {
-                dbItem.saldo_inicial = parseFloat(dbItem.est_maximo) || 20;
+        });
+    }
+
+    if (RESTAURANT_DATA.cardapio_variados) {
+        RESTAURANT_DATA.cardapio_variados.forEach(dbItem => {
+            const localItem = state.cardapio_variados.find(i => i.prato === dbItem.prato);
+            if (!localItem) {
+                state.cardapio_variados.unshift(dbItem);
             }
-            state.estoque.push(dbItem);
-        }
-    });
-
-    // Injetar também novos pratos no cardápio de inverno/variados
-    RESTAURANT_DATA.cardapio_variados.forEach(dbItem => {
-        const localItem = state.cardapio_variados.find(i => i.prato === dbItem.prato);
-        if (!localItem) {
-            state.cardapio_variados.unshift(dbItem);
-        }
-    });
-
+        });
+    }
     // Mesclar receitas do data.js com as receitas locais (para não perder as edições)
     if (RESTAURANT_DATA.recipes) {
         RESTAURANT_DATA.recipes.forEach(dbItem => {
