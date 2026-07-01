@@ -869,14 +869,12 @@ function selectRecipeByName(encodedName) {
     if (rec) {
         selectedRecipeId = rec.nome; // Use nome as the unique identifier
         selectedComponentData = {
-            type: 'Ficha Técnica',
-            typeClass: 'final',
-            typeIcon: 'fa-check-circle',
-            parentRecipe: rec,
-            ingredients: rec.ingredientes,
-            steps: rec.preparo,
-            tempo: rec.tempo,
-            rendimento: rec.rendimento,
+            dishName: rec.categoria || 'Sem Categoria',
+            title: rec.nome,
+            time: rec.tempo_min || '0',
+            rendimento: rec.rendimento || '1 porção',
+            ingredientes: rec.ingredientes || '',
+            modo_preparo: rec.modo_preparo || '',
             isFinal: true
         };
         renderFichasExplorer();
@@ -2895,23 +2893,89 @@ function setupEventListeners() {
 
     // 10. Print Recipe Handler
     document.getElementById('btn-print-recipe').addEventListener('click', () => {
-        const printArea = document.getElementById('print-area');
-        const recipeContent = document.getElementById('recipe-detail-content').innerHTML;
+        if (!selectedComponentData) {
+            alert('Nenhuma ficha selecionada para impressão.');
+            return;
+        }
+
+        const dateStr = new Date().toLocaleDateString('pt-BR');
+        const monthYear = new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
         
+        const ings = (selectedComponentData.ingredientes || '').split('|').map(i => i.trim()).filter(Boolean);
+        const steps = (selectedComponentData.modo_preparo || '').split('\n').map(s => s.trim()).filter(Boolean);
+        const rec = state.recipes.find(r => r.nome === selectedComponentData.title);
+
         const printHtml = `
             <div class="print-page">
-                <div class="print-header" style="margin-bottom: 20px;">
+                <!-- HEADER -->
+                <div style="background-color: #141423; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #c5a86d; margin-bottom: 20px;">
                     <div><div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><img src="data:image/png;base64,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" style="width: 220px; margin-bottom: 15px;" style="height: 32px; margin-bottom: 2px; filter: brightness(0) invert(1);"><span style="font-size: 8px; font-family: 'Inter', sans-serif; letter-spacing: 3px; color: #c5a86d; font-weight: 500;">GASTRONOMIA</span></div></div>
-                    <div class="print-header-center">
-                        <h2>Ficha Técnica de Preparo</h2>
+                    <div style="text-align: center;">
+                        <h2 style="margin: 0; font-size: 20px;">Ficha Técnica de Preparo</h2>
+                        <p style="margin: 5px 0 0 0; font-size: 12px; color: #aaa;">Romerito Gastronomia · Receituário Padrão</p>
+                    </div>
+                    <div style="background-color: #7a2a2a; color: white; padding: 10px 30px; font-weight: bold; border: 1px solid #9a3a3a; font-size: 14px;">
+                        FICHA TÉCNICA
                     </div>
                 </div>
-                <div class="print-content" style="padding: 20px;">
-                    ${recipeContent}
+
+                <div class="print-content" style="padding: 0 40px;">
+                    <!-- TITLE BLOCK -->
+                    <div style="border: 1px solid #c5a86d; padding: 15px; margin-bottom: 15px; background-color: #fdf5d3;">
+                        <h1 style="margin: 0 0 5px 0; color: #141423; font-size: 24px;">${selectedComponentData.title || 'Ficha sem nome'}</h1>
+                        <p style="margin: 0; color: #5a2a2a; font-size: 14px; font-weight: bold;">Categoria: ${selectedComponentData.dishName || 'Geral'}</p>
+                    </div>
+
+                    <!-- INFO BLOCK -->
+                    <div style="display: flex; border: 1px solid #c5a86d; background-color: #fdf5d3; margin-bottom: 25px; font-size: 13px;">
+                        <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Rendimento:</strong> ${selectedComponentData.rendimento || '1 porção'}</div>
+                        <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Tempo de Preparo:</strong> ${selectedComponentData.time || 'N/A'} minutos</div>
+                        <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Responsável Técnico:</strong> Chef Romerito</div>
+                        <div style="flex: 1; padding: 12px;"><strong>Data Impressão:</strong> ${dateStr}</div>
+                    </div>
+
+                    <!-- CONTENT SPLIT -->
+                    <div style="display: flex; gap: 30px;">
+                        <!-- INGREDIENTS -->
+                        <div style="flex: 1;">
+                            <h3 style="color: #5a2a2a; border-bottom: 2px solid #5a2a2a; padding-bottom: 5px; margin-top: 0;">Ingredientes</h3>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                ${ings.map(ing => 
+                                    `<li style="padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; color: #333;"><strong style="color: #c5a86d; margin-right: 5px;">■</strong> ${ing}</li>`
+                                ).join('')}
+                                ${ings.length === 0 ? '<li style="font-size: 13px; color: #666;">Nenhum ingrediente.</li>' : ''}
+                            </ul>
+                        </div>
+
+                        <!-- STEPS -->
+                        <div style="flex: 1;">
+                            <h3 style="color: #5a2a2a; border-bottom: 2px solid #5a2a2a; padding-bottom: 5px; margin-top: 0;">Modo de Preparo</h3>
+                            <ol style="padding-left: 20px; margin: 0;">
+                                ${steps.map(step => 
+                                    `<li style="padding: 8px 0; font-size: 13px; color: #333; margin-bottom: 5px;">${step.replace(/^\d+[\.\s\-]+/, '')}</li>`
+                                ).join('')}
+                                ${steps.length === 0 ? '<li style="font-size: 13px; color: #666;">Nenhum passo cadastrado.</li>' : ''}
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- CHEF TIP -->
+                    ${(rec && rec.dica_chef && rec.dica_chef.trim() !== '') ? `
+                        <div style="margin-top: 30px; border-left: 4px solid #c5a86d; background-color: #fcf8f2; padding: 15px;">
+                            <strong style="color: #5a2a2a; font-size: 13px;">Dica do Chef:</strong>
+                            <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">${rec.dica_chef}</p>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <!-- FOOTER -->
+                <div class="print-footer" style="padding: 20px 40px; margin-top: 40px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #666;">
+                    <img src="data:image/png;base64,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" style="height: 24px; object-fit: contain;">
+                    <div>Ficha Técnica · Sistema PRÉCIS · ${monthYear}</div>
+                    <div>Pág. Impressa via Sistema</div>
                 </div>
             </div>
         `;
-        
         
         const printWindow = window.open('', '_blank');
         if (!printWindow) {
@@ -2929,9 +2993,8 @@ function setupEventListeners() {
         printWindow.document.close();
 
     });
-}
 
-// Global invocation handlers for modals (so they work from inline HTML onclick)
+}
 window.openLaunchRequisitionModal = openLaunchRequisitionModal;
 window.openLaunchInputModal = openLaunchInputModal;
 window.openAddTempModal = openAddTempModal;

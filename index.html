@@ -54,13 +54,9 @@
                     <button><i class="fas fa-fire-burner"></i> Preps do Dia</button>
                 </li>
                 <li class="nav-item" data-tab="tab-checklist">
-
                     <button><i class="fas fa-clipboard-check"></i> Checklist Setores</button>
-                
                 </li>
-                <li class="nav-item" data-tab="tab-checklist-praca">
-                      <button><i class="fas fa-clipboard-list"></i> Checklist Praça</button>
-                  </li>
+                <!-- tab-checklist-praca was removed as requested -->
                 <li class="nav-item" data-tab="tab-folha-req">
                     <button><i class="fas fa-file-invoice"></i> Folha de Requisição</button>
                 </li>
@@ -70,14 +66,11 @@
                 <li class="nav-item" data-tab="tab-movimentacoes">
                     <button><i class="fas fa-exchange-alt"></i> Movimentações</button>
                 </li>
-                                <li class="nav-item" data-tab="tab-equipe">
-                    <button><i class="fas fa-users"></i> Equipe & Metas</button>
-                </li>
-                <li class="nav-item" data-tab="tab-auditoria">
-                    <button><i class="fas fa-boxes"></i> Contagens & Auditoria</button>
-                </li>
                 <li class="nav-item" data-tab="tab-monitoramento">
-                    <button><i class="fas fa-temperature-high"></i> Monitoramento</button>
+                    <button><i class="fas fa-chart-line"></i> Monitoramento FTM</button>
+                </li>
+                <li class="nav-item" data-tab="tab-equipe">
+                    <button><i class="fas fa-users"></i> Equipe e Metas</button>
                 </li>
             </nav>
 
@@ -1371,7 +1364,7 @@
     <div id="print-area"></div>
 
     <!-- Modal: Cadastrar/Editar Ficha Técnica -->
-    <div class="modal-overlay" id="modal-add-ficha" onclick="if(event.target===this) closeAddFichaModal()">
+    <div class="modal-overlay" id="modal-add-ficha">
         <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
             <h3 id="modal-ficha-title"><i class="fas fa-file-alt" style="color: var(--accent-gold); margin-right: 10px;"></i> Nova Ficha Técnica</h3>
             <form id="form-add-ficha" onsubmit="submitFicha(event)">

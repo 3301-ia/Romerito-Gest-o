@@ -81,14 +81,14 @@ const CHECKLIST_PDF_SCHEMA = {
             { id: 24, item: "Papel / Embalagem Parrilla", sub: "rolos / folhas" }
         ],
         countItems: [
-            { id: 1, item: "Bags Linguine seco", sub: "bags · estoque" },
+            { id: 1, item: "Bags Linguine seco", sub: "bags – estoque" },
             { id: 2, item: "Potes Molho Roti", sub: "potes 1L / 3L" },
             { id: 3, item: "Potes Creme de Trufas", sub: "potes frios" },
             { id: 4, item: "Potes Romesco base", sub: "potes 3L / 5L" }
         ],
         passeAcarte: [
             { id: 1, item: "Polvo inteiro", sub: "tentáculo · UN", parLevels: { baixo: 10, medio: 20, alto: 30 } },
-            { id: 2, item: "Camarão Rosa", sub: "UN — 6 por porção", parLevels: { baixo: 15, medio: 25, alto: 40 } },
+            { id: 2, item: "Camarão Rosa", sub: "UN - 6 por porção", parLevels: { baixo: 15, medio: 25, alto: 40 } },
             { id: 3, item: "Pescado do dia", sub: "filé · UN", parLevels: { baixo: 10, medio: 20, alto: 30 } },
             { id: 4, item: "Salmão (Curado / Tatake)", sub: "filé / porção · UN", parLevels: { baixo: 10, medio: 20, alto: 30 } },
             { id: 5, item: "Atum (Tatake / Sando)", sub: "filé / porção · UN", parLevels: { baixo: 10, medio: 20, alto: 30 } },

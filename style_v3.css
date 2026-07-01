@@ -1218,13 +1218,13 @@ textarea.form-control {
         page-break-after: always;
         padding: 0;
         font-family: 'Inter', sans-serif;
-        position: relative;
-        min-height: 25cm; /* Fallback for footer anchoring */
-        padding-bottom: 50px; /* Space for the footer */
+        display: flex;
+        flex-direction: column;
+        min-height: 27.5cm;
     }
     .print-header {
         background-color: #141423 !important;
-        padding: 15px 40px;
+        padding: 8px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -1240,7 +1240,7 @@ textarea.form-control {
     }
     .print-header-center h2 {
         margin: 0;
-        font-size: 24px;
+        font-size: 18px;
         font-weight: 600;
         color: #fff !important;
     }
@@ -1252,7 +1252,7 @@ textarea.form-control {
     .print-header-box {
         border: 1px solid #2a2a4a;
         background-color: #1c1c36 !important;
-        padding: 10px 40px;
+        padding: 6px 20px;
         font-weight: bold;
         font-size: 14px;
         color: #fff !important;
@@ -1260,7 +1260,7 @@ textarea.form-control {
     .print-sub-header {
         background-color: #fdf5d3 !important; /* Pale yellow */
         color: #000 !important;
-        padding: 6px 40px;
+        padding: 4px 20px;
         display: flex;
         justify-content: space-between;
         border-top: 2px solid #c5a86d;
@@ -1269,7 +1269,7 @@ textarea.form-control {
         font-weight: 600;
     }
     .print-content {
-        padding: 10px 40px;
+        padding: 5px 20px;
     }
     .print-table {
         width: 100%;
@@ -1278,8 +1278,8 @@ textarea.form-control {
     }
     .print-table th, .print-table td {
         border: 1px solid #e0e0e0;
-        padding: 4px 6px;
-        font-size: 11px;
+        padding: 3px 5px;
+        font-size: 10.5px;
         color: #000 !important;
     }
     .print-table th {
@@ -1287,26 +1287,26 @@ textarea.form-control {
         color: #fff !important;
         font-weight: 600;
         text-align: left;
-        padding: 6px;
+        padding: 4px;
     }
     .print-table td strong {
-        font-size: 13px;
+        font-size: 12px;
         display: block;
     }
     .print-vol-cell {
         display: flex;
-        gap: 12px;
+        gap: 6px;
         justify-content: center;
     }
     .print-vol-circle {
-        width: 20px;
-        height: 20px;
+        width: 17px;
+        height: 17px;
         border-radius: 50%;
         border: 1px solid #aaa;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 9px;
+        font-size: 10px;
         color: transparent !important;
         background-color: #fff !important;
     }
@@ -1326,11 +1326,9 @@ textarea.form-control {
         color: #fff !important;
         display: flex;
         justify-content: space-between;
-        padding: 10px 40px;
+        padding: 5px 20px;
         font-size: 10px;
-        position: absolute;
-        bottom: 0;
-        left: 0;
+        margin-top: auto !important;
         width: 100%;
         box-sizing: border-box;
     }
