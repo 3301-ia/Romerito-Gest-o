@@ -3662,7 +3662,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // ----------------------------------------------------
 
 function openAddFichaModal() {
-    document.getElementById('modal-ficha-title').innerHTML = '<i class="fas fa-file-alt" style="color: var(--accent-gold); margin-right: 10px;"></i> Nova Ficha Técnica';
+    document.getElementById('modal-ficha-title').innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span><i class="fas fa-file-alt" style="color: var(--accent-gold); margin-right: 10px;"></i> Nova Ficha Técnica</span>
+            <button type="button" onclick="closeAddFichaModal()" style="background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0 5px;">&times;</button>
+        </div>
+    `;
     document.getElementById('form-add-ficha').reset();
     document.getElementById('ficha-original-nome').value = '';
     document.getElementById('modal-add-ficha').classList.add('active');
@@ -3672,6 +3677,13 @@ function openEditFichaModal() {
     if (!selectedRecipeId) return;
     const r = state.recipes.find(rec => rec.nome === selectedRecipeId);
     if (!r) return;
+    
+    document.getElementById('modal-ficha-title').innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span><i class="fas fa-edit" style="color: var(--accent-gold); margin-right: 10px;"></i> Editar Ficha Técnica</span>
+            <button type="button" onclick="closeAddFichaModal()" style="background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0 5px;">&times;</button>
+        </div>
+    `;
     
     document.getElementById('modal-ficha-title').innerHTML = '<i class="fas fa-edit" style="color: var(--accent-gold); margin-right: 10px;"></i> Editar Ficha Técnica';
     document.getElementById('ficha-original-nome').value = r.nome;
