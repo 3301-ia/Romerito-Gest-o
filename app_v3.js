@@ -1740,37 +1740,6 @@ function generateProductionPlan() {
     }
     
 
-    // BOM ENGINE: EXPLODE PRODUCTION TASKS INTO RAW INGREDIENT REQUISITIONS!
-    productionTasks.forEach(task => {
-        // Assume 1 lote por padrão para simplificar.
-        const multiplier = 1; 
-        const exploded = window.explodeRecipe(task.ftm.name, task.ftm.yieldLote, task.ftm.yieldUnit);
-        
-        exploded.forEach(ing => {
-            let qtd = ing.normalizedQtd;
-            let unit = ing.unit ? ing.unit.toLowerCase() : 'un';
-            let nome = ing.name.toLowerCase();
-
-            // Conversão final para a unidade base do estoque (KG, L, UN)
-            if (['kg', 'quilograma', 'g', 'grama', 'gramas', 'mg'].includes(unit)) qtd = ing.normalizedQtd / 1000;
-            else if (['l', 'litro', 'litros', 'ml'].includes(unit)) qtd = ing.normalizedQtd / 1000;
-            else qtd = ing.normalizedQtd; // un, colher, etc
-
-            // Check if this raw ingredient exists in stock
-            const stockMatch = state.estoque.find(e => e.insumo.toLowerCase() === nome || e.insumo.toLowerCase().includes(nome) || nome.includes(e.insumo.toLowerCase()));
-            
-            // Add to requisitionTasks (evitando duplicidades se quiser agrupar depois, mas o renderFolha agrupa)
-            requisitionTasks.push({
-                item: ing.name,
-                sub: '',
-                vol: 'Falta p/ Produção: ' + task.ftm.name,
-                targetQtd: qtd,
-                targetQtdEstoque: qtd,
-                stock: stockMatch || { unidade: unit, estoque_atual: 0 }
-            });
-        });
-    });
-
     // Auto-populate Folha de Requisicao
     // First, clear previous automatic ones
     state.carrinho_requisicao = state.carrinho_requisicao.filter(i => i.origem !== 'Automático');
