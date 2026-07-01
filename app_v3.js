@@ -2879,6 +2879,17 @@ function setupEventListeners() {
         const steps = (selectedComponentData.modo_preparo || '').split('\n').map(s => s.trim()).filter(Boolean);
         const rec = state.recipes.find(r => r.nome === selectedComponentData.title);
 
+        
+        let scaledRendimento = selectedComponentData.rendimento || '1 porção';
+        if (typeof window.currentRecipeScale !== 'undefined' && window.currentRecipeScale !== 1) {
+            let match = scaledRendimento.match(/^([\d.,]+)\s*(.*)$/);
+            if(match) {
+                let num = parseFloat(match[1].replace(',', '.'));
+                let scaled = num * window.currentRecipeScale;
+                let scaledStr = Number.isInteger(scaled) ? scaled.toString() : scaled.toFixed(2).replace(/\.?0+$/, '');
+                scaledRendimento = scaledStr + ' ' + match[2];
+            }
+        }
         const printHtml = `
             <div class="print-page">
                 <!-- HEADER -->
