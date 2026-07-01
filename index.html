@@ -382,7 +382,14 @@
                                     <h2 id="ficha-title">Lulinha Asiática</h2>
                                     <p id="ficha-category">Entrada</p>
                                 </div>
-                                <div style="display: flex; gap: 8px;">
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <div style="display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 6px; margin-right: 10px;">
+                                        <span style="font-size: 11px; color: var(--text-muted); margin: 0 8px;">Escalar:</span>
+                                        <button class="action-btn secondary scale-btn" onclick="scaleRecipe(0.5)" id="btn-scale-0.5" style="padding: 4px 10px; font-size: 12px; margin-right: 2px;">1/2</button>
+                                        <button class="action-btn scale-btn active-scale" onclick="scaleRecipe(1)" id="btn-scale-1" style="padding: 4px 10px; font-size: 12px; background: var(--accent-gold); color: #000; margin-right: 2px;">1x</button>
+                                        <button class="action-btn secondary scale-btn" onclick="scaleRecipe(2)" id="btn-scale-2" style="padding: 4px 10px; font-size: 12px; margin-right: 2px;">2x</button>
+                                        <button class="action-btn secondary scale-btn" onclick="scaleRecipe(4)" id="btn-scale-4" style="padding: 4px 10px; font-size: 12px;">4x</button>
+                                    </div>
                                     <button class="action-btn secondary" onclick="openEditFichaModal()"><i class="fas fa-edit"></i> Editar</button>
                                     <button class="action-btn" id="btn-print-recipe"><i class="fas fa-print"></i> Imprimir Ficha</button>
                                 </div>
