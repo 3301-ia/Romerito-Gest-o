@@ -2902,7 +2902,7 @@ function setupEventListeners() {
 
                     <!-- INFO BLOCK -->
                     <div style="display: flex; border: 1px solid #c5a86d; background-color: #fdf5d3; margin-bottom: 25px; font-size: 13px;">
-                        <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Rendimento:</strong> ${selectedComponentData.rendimento || '1 porção'}</div>
+                        <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Rendimento:</strong> ${scaledRendimento}</div>
                         <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Tempo de Preparo:</strong> ${selectedComponentData.time || 'N/A'} minutos</div>
                         <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Responsável Técnico:</strong> Chef Romerito</div>
                         <div style="flex: 1; padding: 12px;"><strong>Data Impressão:</strong> ${dateStr}</div>
@@ -2921,12 +2921,17 @@ function setupEventListeners() {
                                         const p = window.parseIngredientLine(ing);
                                         if (p && p.name && (p.rawQtd || p.qtd)) {
                                             name = p.name;
-                                            qty = `<strong style="color: #5a2a2a; text-align: right; white-space: nowrap;">${p.qtd} ${p.unit !== 'un' ? p.unit : ''}</strong>`;
+                                            let num = parseFloat(p.qtd);
+                                            let scaledStr = (p.rawQtd || p.qtd);
+                                            if (!isNaN(num) && typeof window.currentRecipeScale !== 'undefined' && window.currentRecipeScale !== 1) {
+                                                let scaled = num * window.currentRecipeScale;
+                                                scaledStr = Number.isInteger(scaled) ? scaled.toString() : scaled.toFixed(3).replace(/\.?0+$/, '');
+                                            }
+                                            qty = `<strong style="color: #5a2a2a; text-align: right; white-space: nowrap;">${scaledStr} ${p.unit !== 'un' ? p.unit : ''}</strong>`;
                                         }
                                     }
                                     return `<li style="padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; color: #333; display: flex; justify-content: space-between; align-items: center; gap: 10px;"><div><strong style="color: #c5a86d; margin-right: 5px;">■</strong> ${name}</div> ${qty}</li>`;
                                 }).join('')}
-                                ${ings.length === 0 ? '<li style="font-size: 13px; color: #666;">Nenhum ingrediente.</li>' : ''}
                             </ul>
                         </div>
 
