@@ -1,12 +1,13 @@
 
 // --- BOM ENGINE (Bill of Materials) ---
-const validUnits = ['g', 'kg', 'mg', 'ml', 'l', 'un', 'unid', 'unidade', 'unidades', 'colher', 'colheres', 'xicara', 'xícaras', 'xícara', 'dente', 'dentes', 'ramo', 'ramos', 'folha', 'folhas', 'pitada', 'pitadas', 'litro', 'litros', 'grama', 'gramas'];
+const validUnits = ['g', 'kg', 'mg', 'ml', 'l', 'un', 'unid', 'unidade', 'unidades', 'colher', 'colheres', 'xicara', 'xícaras', 'xícara', 'dente', 'dentes', 'ramo', 'ramos', 'folha', 'folhas', 'pitada', 'pitadas', 'litro', 'litros', 'grama', 'gramas', 'gr', 'pct', 'pacote', 'lata', 'caixa', 'garrafa', 'fatia', 'fatias', 'porção', 'porcoes', 'porções'];
 
 window.parseIngredientLine = function(line) {
     if (!line || typeof line !== 'string') return null;
     const clean = line.trim();
     if (!clean) return null;
     
+    // Check if there's a match at the end
     const regexEnd = /^(.*?)\s+([\d.,]+)\s*([a-zA-Záéíóúãõç]*)$/i;
     let match = clean.match(regexEnd);
     if (match && !isNaN(parseFloat(match[2].replace(',', '.')))) {
@@ -15,11 +16,13 @@ window.parseIngredientLine = function(line) {
             return {
                 name: match[1].trim(),
                 qtd: parseFloat(match[2].replace(',', '.')),
+                rawQtd: match[2],
                 unit: unit || 'un'
             };
         }
     }
     
+    // Check if there's a match at the start
     const regexStart = /^([\d.,]+)\s*([a-zA-Záéíóúãõç]*)\s+(?:de\s+)?(.*)$/i;
     match = clean.match(regexStart);
     if (match && !isNaN(parseFloat(match[1].replace(',', '.')))) {
@@ -28,22 +31,26 @@ window.parseIngredientLine = function(line) {
             return {
                 name: match[3].trim(),
                 qtd: parseFloat(match[1].replace(',', '.')),
+                rawQtd: match[1],
                 unit: unit || 'un'
             };
         }
     }
 
+    // Number at the start without unit
     const regexNumStart = /^([\d.,]+)\s+(.*)$/i;
     match = clean.match(regexNumStart);
     if (match && !isNaN(parseFloat(match[1].replace(',', '.')))) {
         return {
             name: match[2].trim(),
             qtd: parseFloat(match[1].replace(',', '.')),
+            rawQtd: match[1],
             unit: 'un'
         };
     }
 
-    return { name: clean, qtd: 1, unit: 'un' };
+    // No match
+    return { name: clean, qtd: 1, rawQtd: '', unit: 'un' };
 };
 
 window.normalizeToGramsOrMl = function(qtd, unit) {
@@ -966,14 +973,12 @@ function renderFichaDetail(comp) {
     document.getElementById('ficha-time').innerText = comp.time + " minutos";
     document.getElementById('ficha-responsible').innerText = "Chef Romerito";
     document.getElementById('ficha-status-val').innerText = "âœ… Aprovada / Conforme";
-
-    // Ingredients
-    const ingList = document.getElementById('ficha-ingredients-list');
-    if (comp.ingredientes) {
-        const ings = comp.ingredientes.split('|').map(i => i.trim()).filter(Boolean);
-        ingList.innerHTML = ings.map(ing => `<li><i class="fas fa-utensils" style="color: var(--accent-gold); margin-right: 8px;"></i> ${ing}</li>`).join('');
+    // Ingredients and Scale
+    window.currentRecipeEditing = comp;
+    if (typeof window.scaleRecipe === 'function') {
+        window.scaleRecipe(1);
     } else {
-        ingList.innerHTML = `<li style="color: var(--text-muted);">Nenhum ingrediente cadastrado.</li>`;
+        window.renderRecipeIngredientsUI(comp);
     }
 
     // Prep steps
@@ -2909,9 +2914,18 @@ function setupEventListeners() {
                         <div style="flex: 1;">
                             <h3 style="color: #5a2a2a; border-bottom: 2px solid #5a2a2a; padding-bottom: 5px; margin-top: 0;">Ingredientes</h3>
                             <ul style="list-style: none; padding: 0; margin: 0;">
-                                ${ings.map(ing => 
-                                    `<li style="padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; color: #333;"><strong style="color: #c5a86d; margin-right: 5px;">■</strong> ${ing}</li>`
-                                ).join('')}
+                                ${ings.map(ing => {
+                                    let name = ing;
+                                    let qty = '';
+                                    if (typeof window.parseIngredientLine === 'function') {
+                                        const p = window.parseIngredientLine(ing);
+                                        if (p && p.name && (p.rawQtd || p.qtd)) {
+                                            name = p.name;
+                                            qty = `<strong style="color: #5a2a2a; text-align: right; white-space: nowrap;">${p.qtd} ${p.unit !== 'un' ? p.unit : ''}</strong>`;
+                                        }
+                                    }
+                                    return `<li style="padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; color: #333; display: flex; justify-content: space-between; align-items: center; gap: 10px;"><div><strong style="color: #c5a86d; margin-right: 5px;">■</strong> ${name}</div> ${qty}</li>`;
+                                }).join('')}
                                 ${ings.length === 0 ? '<li style="font-size: 13px; color: #666;">Nenhum ingrediente.</li>' : ''}
                             </ul>
                         </div>
@@ -4053,4 +4067,67 @@ window.exportarBancoDeDados = function() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast("Banco de dados baixado! Substitua o arquivo data_v3.js para subir para o site.");
+};
+
+
+window.currentRecipeScale = 1;
+window.scaleRecipe = function(scale) {
+    window.currentRecipeScale = scale;
+    [0.5, 1, 2, 4].forEach(s => {
+        let btn = document.getElementById('btn-scale-' + s);
+        if(btn) {
+            if(s === scale) {
+                btn.style.background = 'var(--accent-gold)';
+                btn.style.color = '#000';
+            } else {
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                btn.style.color = '#fff';
+            }
+        }
+    });
+    
+    if (window.currentRecipeEditing) {
+        window.renderRecipeIngredientsUI(window.currentRecipeEditing);
+    }
+};
+
+window.renderRecipeIngredientsUI = function(comp) {
+    const ingList = document.getElementById('ficha-ingredients-list');
+    if (comp.ingredientes) {
+        const ings = comp.ingredientes.split('|').map(i => i.trim()).filter(Boolean);
+        ingList.innerHTML = ings.map(ing => {
+            let name = ing;
+            let qty = '';
+            if (typeof window.parseIngredientLine === 'function') {
+                const p = window.parseIngredientLine(ing);
+                if (p && p.name && (p.rawQtd || p.qtd)) {
+                    name = p.name;
+                    let num = parseFloat(p.qtd);
+                    if (!isNaN(num)) {
+                        let scaled = num * window.currentRecipeScale;
+                        let scaledStr = Number.isInteger(scaled) ? scaled.toString() : scaled.toFixed(3).replace(/\.?0+$/, '');
+                        qty = `<span style="color: var(--accent-gold); font-weight: 600; font-size: 14px; text-align: right; white-space: nowrap;">${scaledStr} ${p.unit !== 'un' ? p.unit : ''}</span>`;
+                    } else {
+                        qty = `<span style="color: var(--accent-gold); font-weight: 600; font-size: 14px; text-align: right; white-space: nowrap;">${p.rawQtd || p.qtd} ${p.unit !== 'un' ? p.unit : ''}</span>`;
+                    }
+                }
+            }
+            return `<li style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.1);"><div style="display: flex; align-items: center;"><i class="fas fa-utensils" style="color: var(--accent-gold); margin-right: 8px;"></i> ${name}</div> ${qty}</li>`;
+        }).join('');
+    } else {
+        ingList.innerHTML = `<li style="color: var(--text-muted);">Nenhum ingrediente cadastrado.</li>`;
+    }
+    
+    let rend = document.getElementById('ficha-yield');
+    if (rend) {
+        let match = (comp.rendimento || '1 porção').match(/^([\d.,]+)\s*(.*)$/);
+        if(match) {
+            let num = parseFloat(match[1].replace(',', '.'));
+            let scaled = num * window.currentRecipeScale;
+            let scaledStr = Number.isInteger(scaled) ? scaled.toString() : scaled.toFixed(2).replace(/\.?0+$/, '');
+            rend.innerText = scaledStr + ' ' + match[2];
+        } else {
+            rend.innerText = comp.rendimento || '1 porção';
+        }
+    }
 };
