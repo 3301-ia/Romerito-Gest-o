@@ -588,6 +588,8 @@ function renderActiveTab() {
         renderMonitoramento();
     } else if (activeTab === 'tab-auditoria') {
         renderAuditoria();
+    } else if (activeTab === 'tab-arquivos-cozinha') {
+        renderArquivosCozinha();
     }
 }
 
@@ -827,7 +829,7 @@ function renderCardapio() {
     });
 
     if (filteredData.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">Nenhum item do cardápio encontrado.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 32px;">Nenhum item do cardápio encontrado.</td></tr>`;
         return;
     }
 
@@ -867,6 +869,7 @@ function renderCardapio() {
                     </button>
                 </td>
                 ${extraCol}
+                <td><button class="action-btn" onclick="event.stopPropagation(); window.openPreenchimentoCardapio('${item.prato}')" style="padding: 4px 8px; font-size: 11px;"><i class="fas fa-edit"></i> Preencher</button></td>
             </tr>
         `;
     }).join('');
@@ -1344,7 +1347,7 @@ function renderChecklist() {
                                 <td style="width: 40px; color: var(--text-muted);">${item.id}</td>
                                 <td>
                                     <strong>${item.item}</strong>
-                                    <div style="font-size: 11px; color: var(--text-muted);">${item.sub}</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);">${item.sub || ''}</div>
                                 </td>
                                 <td>
                                     <div class="volume-selector">
@@ -1355,17 +1358,21 @@ function renderChecklist() {
                                     </div>
                                 </td>
                                 <td>
-                                    <select class="form-control" onchange="setChecklistText('${checklistActiveSubtab}', 'recip_${item.id}', this.value)" id="input_${checklistActiveSubtab}_recip_${item.id}">
-                                        <option value=""></option>
-                                        <option value="Pote">Pote</option>
-                                        <option value="Bag">Bag</option>
-                                        <option value="GN">GN</option>
-                                        <option value="Bowl">Bowl</option>
-                                        <option value="Bandeja">Bandeja</option>
-                                        <option value="Squeeze">Squeeze</option>
+                                    <select id="chk_${checklistActiveSubtab}_recip_${item.id}" class="form-control" onchange="saveChecklistState()">
+                                        <option value="">Selecione...</option>
+                                        <option value="Pote Redondo M">Pote Redondo M</option>
+                                        <option value="Pote Redondo G">Pote Redondo G</option>
+                                        <option value="Pote Retangular M">Pote Retangular M</option>
+                                        <option value="Pote Retangular G">Pote Retangular G</option>
+                                        <option value="Bag a vácuo">Bag a vácuo</option>
+                                        <option value="GN 1/2">GN 1/2</option>
+                                        <option value="GN 1/4">GN 1/4</option>
+                                        <option value="Bisnaga / Frasco">Bisnaga / Frasco</option>
                                     </select>
                                 </td>
-                                <td><input type="text" class="form-control" style="width: 90px;" placeholder="Ex: 1L, M" onchange="setChecklistText('${checklistActiveSubtab}', 'tamanho_${item.id}', this.value)" id="input_${checklistActiveSubtab}_tamanho_${item.id}"></td>
+                                <td>
+                                    <input type="text" id="chk_${checklistActiveSubtab}_tam_${item.id}" class="form-control" placeholder="Ex: 1L, M" onchange="saveChecklistState()">
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -1556,40 +1563,30 @@ function printChecklistForm() {
                     <thead>
                         <tr>
                             <th colspan="5">■ PRAÇA — VOLUME (assinalar: 1 = cheio · ½ · ¼ · 0 = vazio)</th>
-                        </tr>
-                        <tr style="background-color: #2a2a4a !important; color: white !important; font-size: 10px;">
-                            <th style="width:30px;">#</th>
-                            <th>Item / Insumo</th>
-                            <th style="width:140px; text-align:center;">1 &nbsp;&nbsp; ½ &nbsp;&nbsp; ¼ &nbsp;&nbsp; 0</th>
-                            <th style="width:120px;">Recipiente</th>
-                            <th style="width:80px;">Medida</th>
-<th style="width:60px; text-align:center;">Check</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${sectionData.volumeItems.map(item => {
-                            const val = shiftData[sectionKey] ? shiftData[sectionKey][`vol_${item.id}`] : null;
-                            const recip = shiftData[sectionKey] ? shiftData[sectionKey][`recip_${item.id}`] : '';
-                            const tamanho = shiftData[sectionKey] ? shiftData[sectionKey][`tamanho_${item.id}`] : '';
-                            return `
-                            <tr>
-                                <td style="text-align:center; color: #555 !important;">${item.id}</td>
-                                <td><strong>${item.item}</strong><span style="color:#777 !important; font-size: 11px;">${item.sub}</span></td>
-                                <td>
-                                    <div class="print-vol-cell">
-                                        <div class="print-vol-circle ${val === '1' ? 'print-vol-filled' : ''}"></div>
-                                        <div class="print-vol-circle ${val === '1/2' ? 'print-vol-filled' : ''}"></div>
-                                        <div class="print-vol-circle ${val === '1/4' ? 'print-vol-filled' : ''}"></div>
-                                        <div class="print-vol-circle ${val === '0' ? 'print-vol-filled' : ''}"></div>
-                                    </div>
-                                </td>
-                                <td><span class="print-value-filled">${recip || ''}</span></td>
-                                <td><span class="print-value-filled">${tamanho || ''}</span></td>
-                                <td style="text-align: center; vertical-align: middle;"><div style="width: 14px; height: 14px; border: 1.5px solid #000; margin: 0 auto; border-radius: 2px;"></div></td>
-                            </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
+                                <tr style="background-color: #1c1c36 !important; color: white !important; font-size: 11px;">
+                                    <th style="width: 30px; text-align: center;">#</th>
+                                    <th>Item / Insumo</th>
+                                    <th style="width: 130px; text-align: center;">1 &nbsp;&nbsp; ½ &nbsp;&nbsp; ¼ &nbsp;&nbsp; 0</th>
+                                    <th style="width: 120px;">Recipiente</th>
+                                    <th style="width: 80px;">Medida</th>
+                                    <th style="width: 50px; text-align: center;">Check</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${sectionData.volumeItems.map(item => `
+                                    <tr>
+                                        <td style="text-align:center; color: #555 !important;">${item.id}</td>
+                                        <td>
+                                            <strong>${item.item}</strong>
+                                            <div style="font-size: 10px; color: #666;">${item.sub || ''}</div>
+                                        </td>
+                                        <td><div style="display: flex; gap: 6px; justify-content: center;"><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div></div></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: center;"><div style="width: 16px; height: 16px; border: 1px solid #000; margin: 0 auto; display: inline-block;"></div></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
                 </table>
             `;
         }
@@ -1675,7 +1672,7 @@ function printChecklistForm() {
             return;
         }
         printWindow.document.write('<html><head><title>Imprimir</title>');
-        printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" href="style_v3.css">');
+        printWindow.document.write('<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\"><link rel=\"stylesheet\" href=\"style_v3.css\">');
         printWindow.document.write('</head><body style="background:white; color:black;">');
         printWindow.document.write('<div id="print-area" style="display:block;">');
         printWindow.document.write(printHtml);
@@ -2096,7 +2093,7 @@ function printPrepPlan() {
             return;
         }
         printWindow.document.write('<html><head><title>Imprimir</title>');
-        printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" href="style_v3.css">');
+        printWindow.document.write('<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\"><link rel=\"stylesheet\" href=\"style_v3.css\">');
         printWindow.document.write('</head><body style="background:white; color:black;">');
         printWindow.document.write('<div id="print-area" style="display:block;">');
         printWindow.document.write(printHtml);
@@ -2320,7 +2317,7 @@ function printFolhaRequisicao() {
             return;
         }
         printWindow.document.write('<html><head><title>Imprimir</title>');
-        printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" href="style_v3.css">');
+        printWindow.document.write('<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\"><link rel=\"stylesheet\" href=\"style_v3.css\">');
         printWindow.document.write('</head><body style="background:white; color:black;">');
         printWindow.document.write('<div id="print-area" style="display:block;">');
         printWindow.document.write(printHtml);
@@ -3087,7 +3084,7 @@ function setupEventListeners() {
             return;
         }
         printWindow.document.write('<html><head><title>Imprimir</title>');
-        printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" href="style_v3.css">');
+        printWindow.document.write('<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\"><link rel=\"stylesheet\" href=\"style_v3.css\">');
         printWindow.document.write('</head><body style="background:white; color:black;">');
         printWindow.document.write('<div id="print-area" style="display:block;">');
         printWindow.document.write(printHtml);
@@ -3916,6 +3913,30 @@ const arquivosCozinhaList = [
         descricao: "Planilha física para contagem de Final Antecipado do estoque (Entradas, Carnes, Pescados e Executivo).",
         icone: "fas fa-file-pdf",
         url: "pdfs/contagem_final_diaria.pdf"
+    },
+    {
+        nome: "Requisição de Insumos (Fim de Semana)",
+        descricao: "Formulário duplo (Sábado e Domingo) para requisição de Carnes, Frutos do Mar, Frios, Hortifruti e Mercearia.",
+        icone: "fas fa-clipboard-list",
+        url: "Arquivos_Cozinha/Requisicao_Fim_de_Semana.pdf"
+    },
+    {
+        nome: "Controle de Sous Vide & Pré-Cozimentos",
+        descricao: "Tabela com tempos, temperaturas e registros de Qtd Inicial e Final de processos (Filet, Assado de Tira, etc).",
+        icone: "fas fa-temperature-high",
+        url: "Arquivos_Cozinha/Sous_Vide_e_Pre_Cozimentos.pdf"
+    },
+    {
+        nome: "FTMs Executivo — Carnes & Sous Vide",
+        descricao: "Fichas Técnicas originais completas com gramagens, temperaturas e montagem (Ancho, Assado de Tira, etc).",
+        icone: "fas fa-book",
+        url: "Arquivos_Cozinha/FTM_Executivo_Completo.pdf"
+    },
+    {
+        nome: "FTMs Completas — Menu de Inverno & Copa",
+        descricao: "Fichas Técnicas de Preparo diárias (Terça a Sexta), Entradas, Fondues e Sobremesas de Inverno.",
+        icone: "fas fa-book-open",
+        url: "Arquivos_Cozinha/Menu_Inverno_Pratos_do_Dia.pdf"
     }
 ];
 
@@ -3934,9 +3955,14 @@ function renderArquivosCozinha() {
                     <p style="color: var(--text-muted); font-size: 13px; margin: 0; line-height: 1.4;">${arq.descricao}</p>
                 </div>
             </div>
-            <a href="${arq.url}" target="_blank" class="action-btn" style="text-align: center; text-decoration: none; display: block; width: 100%;">
-                <i class="fas fa-external-link-alt"></i> Abrir PDF
-            </a>
+            ${arq.url === 'pdfs/contagem_final_diaria.pdf' 
+                ? `<button onclick="printContagemFinalDiaria()" class="action-btn" style="width: 100%;"><i class="fas fa-print"></i> Gerar e Imprimir</button>`
+                : arq.url === 'pdfs/contagem_final_diaria_original.pdf'
+                ? `<button onclick="printContagemFinalDiariaOriginal()" class="action-btn secondary" style="width: 100%;"><i class="fas fa-print"></i> Imprimir Original</button>`
+                : `<a href="${arq.url}" target="_blank" class="action-btn" style="text-align: center; text-decoration: none; display: block; width: 100%;">
+                    <i class="fas fa-external-link-alt"></i> Abrir PDF
+                   </a>`
+            }
         </div>
     `).join('');
 }
@@ -4080,7 +4106,11 @@ function printChecklistPracaForm() {
                     </div>
                     
                     <div class="print-sub-header">
-                        <div>Data: <strong>${currentDate}</strong></div>
+                        <div>Data: <strong>${new Date().toLocaleDateString('pt-BR')}</strong></div>
+                        <div>Responsável: <strong>${new Date().getHours() < 17 ? 'Jennifer' : 'Anderson'}</strong></div>
+                        <div>Assinatura: _________________</div>
+                        <div>Conferido: _________________</div>
+                    </div>
                         <div>Turno: <strong>${currentShift}</strong></div>
                         <div>Responsável: _________________</div>
                         <div>Conferido: _________________</div>
@@ -4094,39 +4124,31 @@ function printChecklistPracaForm() {
                         <table class="print-table">
                             <thead>
                                 <tr>
-                                    <th colspan="5">■ PRAÇA — VOLUME (assinalar: 1 = cheio · ½ · ¼ · 0 = vazio)</th>
+                                    <th colspan="6">■ PRAÇA — VOLUME (assinalar: 1 = cheio · ½ · ¼ · 0 = vazio)</th>
                                 </tr>
-                                <tr>
-                                    <th style="width: 30px;">#</th>
+                                <tr style="background-color: #1c1c36 !important; color: white !important; font-size: 11px;">
+                                    <th style="width: 30px; text-align: center;">#</th>
                                     <th>Item / Insumo</th>
-                                    <th style="width: 140px; text-align: center;">1 &nbsp;&nbsp;&nbsp; ½ &nbsp;&nbsp;&nbsp; ¼ &nbsp;&nbsp;&nbsp; 0</th>
-                                    <th style="width: 160px;">Recipiente (Pote/Bag/Padiola)</th>
-                                    <th style="width: 80px;">Litragem</th>
-                                    <th style="width: 60px;">Baixa</th>
+                                    <th style="width: 130px; text-align: center;">1 &nbsp;&nbsp; ½ &nbsp;&nbsp; ¼ &nbsp;&nbsp; 0</th>
+                                    <th style="width: 120px;">Recipiente</th>
+                                    <th style="width: 80px;">Medida</th>
+                                    <th style="width: 50px; text-align: center;">Check</th>
                                 </tr>
                             </thead>
                             <tbody>
-                `;
-                sectionData.volumeItems.forEach(item => {
-                    const val = shiftData[sectionKey] ? shiftData[sectionKey][`vol_${item.id}`] : null;
-                    printHtml += `
-                                <tr>
-                                    <td style="text-align: center;">${item.id}</td>
-                                    <td><strong>${item.item}</strong><br><span style="color: #666;">${item.sub}</span></td>
-                                    <td>
-                                        <div class="print-vol-cell">
-                                            <div class="print-vol-circle" style="${val === '1' ? 'background: #000;' : ''}"></div>
-                                            <div class="print-vol-circle" style="${val === '1/2' ? 'background: #000;' : ''}"></div>
-                                            <div class="print-vol-circle" style="${val === '1/4' ? 'background: #000;' : ''}"></div>
-                                            <div class="print-vol-circle" style="${val === '0' ? 'background: #000;' : ''}"></div>
-                                        </div>
-                                    </td>
-                                    <td>${item.recipiente}</td>
-                                    <td>${item.pote}</td>
-                                </tr>
-                    `;
-                });
-                printHtml += `
+                                ${sectionData.volumeItems.map(item => `
+                                    <tr>
+                                        <td style="text-align:center; color: #555 !important;">${item.id}</td>
+                                        <td>
+                                            <strong>${item.item}</strong>
+                                            <div style="font-size: 10px; color: #666;">${item.sub || ''}</div>
+                                        </td>
+                                        <td><div style="display: flex; gap: 6px; justify-content: center;"><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div></div></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: center;"><div style="width: 16px; height: 16px; border: 1px solid #000; margin: 0 auto; display: inline-block;"></div></td>
+                                    </tr>
+                                `).join('')}
                             </tbody>
                         </table>
                 `;
@@ -4150,7 +4172,7 @@ function printChecklistPracaForm() {
             return;
         }
         printWindow.document.write('<html><head><title>Imprimir</title>');
-        printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="stylesheet" href="style_v3.css">');
+        printWindow.document.write('<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap\" rel=\"stylesheet\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\"><link rel=\"stylesheet\" href=\"style_v3.css\">');
         printWindow.document.write('</head><body style="background:white; color:black;">');
         printWindow.document.write('<div id="print-area" style="display:block;">');
         printWindow.document.write(printHtml);
@@ -4251,4 +4273,645 @@ window.renderRecipeIngredientsUI = function(comp) {
             rend.innerText = comp.rendimento || '1 porção';
         }
     }
+};
+
+window.openPreenchimentoCardapio = function(nome) {
+    const r = state.recipes.find(rec => rec.nome === nome || rec.id == nome);
+    if(r) {
+        window.selectedRecipeId = r.id;
+        if (typeof openEditFichaModal === 'function') {
+            openEditFichaModal();
+        } else {
+            console.error('openEditFichaModal is not defined');
+        }
+    } else {
+        alert('Ficha técnica correspondente não encontrada para edição.');
+    }
+}
+
+
+
+
+window.printBlankFicha = function(type) {
+    const nomeInput = document.getElementById('ficha-nome');
+    const nome = nomeInput ? nomeInput.value : '';
+    
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    const monthYear = new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+    
+    let mainTitle = type === 'tecnica' ? 'Ingredientes' : 'Componentes da Montagem';
+    let rightTitle = type === 'tecnica' ? 'Modo de Preparo' : 'Esquema / Passo a Passo';
+    
+    // Generate empty ingredients lines
+    const generateIngs = (count) => {
+        return Array(count).fill('').map(() => `
+            <li style="padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; color: #333; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <div><strong style="color: #c5a86d; margin-right: 5px;">■</strong> ___________________________________</div>
+                <div>____________________</div>
+            </li>
+        `).join('');
+    };
+
+    // Generate empty steps lines
+    const generateSteps = (count) => {
+        return Array(count).fill('').map((_, i) => `
+            <li style="padding: 8px 0; font-size: 13px; color: #333; margin-bottom: 5px; border-bottom: 1px solid #888; display: flex; gap: 10px; align-items: flex-end;">
+                <strong>${i + 1}.</strong> <div style="flex: 1;"></div>
+            </li>
+            <li style="padding: 8px 0; font-size: 13px; color: #333; margin-bottom: 10px; border-bottom: 1px solid #888; display: flex; gap: 10px;">
+                <div style="flex: 1;"></div>
+            </li>
+        `).join('');
+    };
+
+    const contentHtml = `
+        <div class="print-page">
+            <!-- HEADER -->
+            <div style="background-color: #141423; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #c5a86d; margin-bottom: 20px;">
+                <div><div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><img src="data:image/png;base64,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" style="width: 220px; margin-bottom: 15px; filter: brightness(0) invert(1);"><span style="font-size: 8px; font-family: 'Inter', sans-serif; letter-spacing: 3px; color: #c5a86d; font-weight: 500;">GASTRONOMIA</span></div></div>
+                <div style="text-align: center;">
+                    <h2 style="margin: 0; font-size: 20px;">${type === 'tecnica' ? 'Ficha Técnica de Preparo' : 'Ficha de Montagem (Prato)'}</h2>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #aaa;">Romerito Gastronomia · Receituário Padrão</p>
+                </div>
+                <div style="background-color: #7a2a2a; color: white; padding: 10px 30px; font-weight: bold; border: 1px solid #9a3a3a; font-size: 14px;">
+                    ${type === 'tecnica' ? 'FICHA TÉCNICA' : 'MONTAGEM'}
+                </div>
+            </div>
+
+            <div class="print-content" style="padding: 0 40px;">
+                <!-- TITLE BLOCK -->
+                <div style="border: 1px solid #c5a86d; padding: 15px; margin-bottom: 15px; background-color: #fdf5d3;">
+                    <h1 style="margin: 0 0 5px 0; color: #141423; font-size: 24px;">${nome ? nome.toUpperCase() : '__________________________________'}</h1>
+                    <p style="margin: 0; color: #5a2a2a; font-size: 14px; font-weight: bold;">Categoria: ________________</p>
+                </div>
+
+                <!-- INFO BLOCK -->
+                <div style="display: flex; border: 1px solid #c5a86d; background-color: #fdf5d3; margin-bottom: 25px; font-size: 13px;">
+                    <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Rendimento:</strong> ________________</div>
+                    <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Tempo de Preparo:</strong> _______________</div>
+                    <div style="flex: 1; border-right: 1px solid #c5a86d; padding: 12px;"><strong>Responsável Técnico:</strong> Chef Romerito</div>
+                    <div style="flex: 1; padding: 12px;"><strong>Data Impressão:</strong> ${dateStr}</div>
+                </div>
+
+                <!-- CONTENT SPLIT -->
+                <div style="display: flex; gap: 30px;">
+                    <!-- LEFT COLUMN -->
+                    <div style="flex: 1;">
+                        <h3 style="color: #5a2a2a; border-bottom: 2px solid #5a2a2a; padding-bottom: 5px; margin-top: 0;">${mainTitle}</h3>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            ${generateIngs(10)}
+                        </ul>
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div style="flex: 1;">
+                        <h3 style="color: #5a2a2a; border-bottom: 2px solid #5a2a2a; padding-bottom: 5px; margin-top: 0;">${rightTitle}</h3>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            ${generateSteps(7)}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- CHEF TIP -->
+                <div style="margin-top: 30px; border-left: 4px solid #c5a86d; background-color: #fcf8f2; padding: 15px;">
+                    <strong style="color: #5a2a2a; font-size: 13px;">Dica do Chef / Observações:</strong>
+                    <div style="height: 20px; border-bottom: 1px dotted #ccc; margin-top: 5px;"></div>
+                    <div style="height: 20px; border-bottom: 1px dotted #ccc; margin-top: 5px;"></div>
+                </div>
+            </div>
+            
+            <!-- FOOTER -->
+            <div class="print-footer" style="padding: 20px 40px; margin-top: 40px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: white; background-color: #141423;">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD4AAAA+CAYAAABzwahEAAAGqklEQVR4nOWbeYhWZRTGf9/XmJWULU6ZlVvmjFqMjFJpWWOpraZpQhuWZVG2EJEZhP0hQaS0b7RSRCDZpm2ThVqJaVppamTm0gjhaGmRk5qpceK58Pry3m/fRh+43Jnz3eU973aes9zEloEdOBCR5ABFVZrf64F/gb2e/AjJdwI7dF5H+dAF+CUgrwWOBNoDBwPbda5Kpfj5wGjgpkAH/QXslryNOmYR0KQOWAx8oAbtlbyYiJQ+G+gNdAIGAocDh2mg7PhT7d6dSLHGa4ALdKM1PqGzLY/uQDVwgpSzv13Yw5cCHwFfAR8XV2/OAsYAVwLHAS3AJuBnYAmwEtisQWpr7U6leKop5P5+lHr2HOAKoK93jb38LeBtNaKQsAG4H7jBkX0HvAZ8qHcHkSjwrn4GcC5wPdDL++1V4AXNgELAOnksMNyRPalO/jLdzYkimTNba5OASz15I/CEzvngHmCqll+ERyQvyK6eK+breAy4y5FfqPOhwLs5PLcOGCalXdj6Xp7Ng6ooLp4HDgFu8ZQ389IMLMjiWQOAIcAUT/6opndFEZgfgZeBuQElRmX5rAGBqWwm9NlKZW5LgJkB+W3AiCyUvkq22IV16ppKpqwLgFWezJbAnRnebySqvyf7Bvgk1wYlKQ0Wx2xm5wEXp7n3PJlHAqPd1BqclEXAPwH5yDT33eyZrWjveC6fxiQpHdbEmJzBYmAhnA5cHpC/l29jkpQOy2MoZI8Ay3MVN2/KRzZmsCL88S0x8qNTUGAftlz+aG2K/xoj7xjD0oz3+/gB2NjaFN8UIz82ZhacFJCbWVzd2hTfFiNvF5D5Pn6EWFezkhXfESMPmbk+MdfmPdrlUNyP3aVS/KCYa/fsT1HW7Vlcu18pvqPUL0yW+H0hMkKMXbaAJVnIK1rxHjHybwMyi5SGYCFiQ9fWpHhNQLZZcXofIZkhChKuby2K1ysI6WO22JgPC02FkNdIl0NxG+1uAXljCpZns8FHnCdXcYp3TjNSy2Lkv8WwtBCvr0jFmzTa1wV+m5oiLGzBhoUZemwVO9XHBjY2W8OfZxCy8mEpq0GtQfFTYzIcLympmC5cZclHH6FNsqIU761Mik9cLIH4Zgb3rwXeCcgtsVDRitcDN3qyFcBTwPcZPsOWw4bAc0OcoCyKd/WiJxOAyd41Xyitm25t+/dM92RW5XBrpSi+3vnb0kPPAD0d2SxlUO2cLeyeOZ5smCK0ZVe8syoSrIEPeNTzcclC5ikduijzOs2T91KOPCck0uTHR2h9tQRSQJGy1TIx13gZjz3auRtzTAmH8LRybi5HuDaTQoBs0sQ1Su/WyW1sVpTUQsS7pGwPHR29xswSB19W4MKf24G/gYlOxz+sQp+CKb5deef+4se1TiqnJSZAiKa6jfJPRap2uhc4xUk9WSb1DeXS5jgb7fp8S0G6qVKondK0bRUjs6qGDprqFgpuAPp5NttSxJ8B80RBUxUSZYO+qoKY5MTmPlU+LaNllShgDUyt6susURd5JGO3GtQoGpqpDU+HiUo1n+iErydrMy1L8Y/hZGCoeLpNxwg28jPEyEJ0NJf33AFcov3GNtWv5QDZUtsqBrgPiqF4TcACjNPhOhfbVCkxXVWQ+aKfqjGHaNZVy6dfqU3W1nx7LcvqYo54CCM1A9zUr1mL11WQt7YAG2JkZepV5dhJS8EU3qK6212pFB+jutRCVyPWqlR0nExlBFP4RVkSWw4uespK5LoUjtHm3FYbc0sqxefKizLSUAzYdLwaGC9O4EZRp6iMq2hIpiiKbYhJ0xYKS2WTx3l1au1VpbhVDk1c0UBRFG9wKhKKjZlaVqM9Lm8e2IPa+KbJQoSClTkhETPVZzgOwCA5CZQoWmPvvVsV0S5WiaQ0yqfPiwxVxYR1rAERhpRQ8RU6NqgDotrXyEzWaF9YqBr4+blygURgxO8DHnL+X+l0RPcQGSgiJshROi3m92YFKuarXWtjkhORQ9MUp3gv2VQjAy7GSl5qdJM/fpnYWbqi46WqeFztsLZmFe+7qPMfNCqgdMSJN+VTQpkj1umYpyUwOk0lZN/AFxIRzJ1Fn5rss6sPjgn6o6k20smKlAOviI835Dj7TOH/lXan+nh91+E6EyHMluuXd2VhATBcM3SoPgrKClXaPYcrBm6RFb9WpY0TgDhejsDSfNO0BcD7OvqIcNUovXRmivoZ3BHvrE3EGNPvTo1JUn70VuejtZ2ilIVwJ4uBOtXMWVs7iJ9HU9wCJG0UPdpYau+sYpAsdwPKhf8AZ/ltGaD505AAAAAASUVORK5CYII=" style="height: 24px; object-fit: contain;">
+                <div>Ficha Técnica · Sistema PRÉCIS · ${monthYear}</div>
+                <div>Pág. Impressa via Sistema</div>
+            </div>
+        </div>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Preenchimento - Ficha</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="style_v3.css">
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; color: #000; }
+                @media print {
+                    body { padding: 0; margin: 0; }
+                    @page { margin: 0.5cm; }
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            ${contentHtml}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => {
+        printWindow.print();
+    }, 500);
+};
+
+window.printContagemFinalDiaria = function() {
+    let printHtml = '';
+    const dateStr = new Date().toLocaleDateString('pt-BR');
+    const respStr = new Date().getHours() < 17 ? 'Jennifer' : 'Anderson';
+    
+    const CONTAGEM_FINAL_SCHEMA = [
+        {
+            title: "ENTRADAS & PETISCOS",
+            items: [
+                { item: "Bolinho de Mandioca", un: "UN" },
+                { item: "Burrata", un: "UN" },
+                { item: "Milho Doce", un: "PÇ" },
+                { item: "Pastel de Queijo", un: "UN" },
+                { item: "Pastel Bobó de Camarão", un: "UN" },
+                { item: "Arañita / Lulinha", un: "PÇ" },
+                { item: "Picolé Mineiro", un: "UN" },
+                { item: "Croquete de Costela", un: "UN" },
+                { item: "Tulipinha de Frango", un: "UN" },
+                { item: "Batatas Fritas", un: "PCT" },
+                { item: "Carpaccio", un: "UN" },
+                { item: "Baguete", un: "UN" },
+                { item: "", un: "——", empty: true },
+                { item: "", un: "——", empty: true }
+            ],
+            footer: "obs",
+            pageNum: 1
+        },
+        {
+            title: "CARNES & PARRILLA",
+            items: [
+                { item: "Ancho Red Angus", un: "UN" },
+                { item: "Assado de Tira", un: "PCT" },
+                { item: "Linguiça Artesanal de Ancho", un: "UN" },
+                { item: "Linguiça de Cordeiro", un: "UN" },
+                { item: "Fraldinha", un: "PÇ" },
+                { item: "Picanha Bovina", un: "PÇ" },
+                { item: "Picanha de Cordeiro", un: "PÇ" },
+                { item: "Denver", un: "PÇ" },
+                { item: "Flat Iron", un: "PÇ" },
+                { item: "Chorizo", un: "UN" },
+                { item: "Hambúrguer", un: "UN" },
+                { item: "Filé Mignon", un: "PÇ" },
+                { item: "Isca de Filé", un: "PÇ" },
+                { item: "Parmegiana", un: "UN" },
+                { item: "Tournedor 200g", un: "UN" },
+                { item: "", un: "——", empty: true },
+                { item: "", un: "——", empty: true }
+            ],
+            footer: "obs",
+            pageNum: 2
+        },
+        {
+            title: "PESCADOS & FRUTOS DO MAR",
+            items: [
+                { item: "Polvo", un: "PÇ" },
+                { item: "Pescado do Dia", un: "PÇ" },
+                { item: "Camarão", un: "UN" },
+                { item: "Lulinha / Arañita", un: "PÇ" },
+                { item: "Salmão", un: "PÇ" },
+                { item: "Tilápia", un: "PÇ" },
+                { item: "Ceviche", un: "PÇ" },
+                { item: "Tataki", un: "PÇ" },
+                { item: "Sando", un: "UN" },
+                { item: "Bacalhau Confitado", un: "PÇ" },
+                { item: "", un: "——", empty: true },
+                { item: "", un: "——", empty: true }
+            ],
+            footer: "add",
+            pageNum: 3
+        },
+        {
+            title: "ALMOÇO EXECUTIVO — Carnes & Proteínas",
+            items: [
+                { item: "Chorizo", un: "PCT" },
+                { item: "Parmegiana", un: "PCT" },
+                { item: "Fraldinha 200g", un: "PCT" },
+                { item: "Peito de Frango", un: "PCT" },
+                { item: "Salmão", un: "PCT" },
+                { item: "Tilápia", un: "PCT" }
+            ],
+            footer: "obs_small",
+            pageNum: 4
+        }
+    ];
+
+    CONTAGEM_FINAL_SCHEMA.forEach(section => {
+        printHtml += `
+            <div class="print-page" style="background-color: #f4f6fb; padding: 20px 40px; min-height: 100vh; page-break-after: always; position: relative;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 15px;">
+                    <div style="background-color: #faeaea; padding: 15px 30px; display: flex; align-items: center; justify-content: center;">
+                        <img src="data:image/png;base64,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" style="width: 180px;">
+                    </div>
+                    <div style="text-align: left; flex: 1; padding-left: 20px; display: flex; flex-direction: column; justify-content: center;">
+                        <h2 style="margin: 0; font-size: 20px; color: #1a1a2e; font-family: 'Outfit', sans-serif;">Contagem Final - Diária</h2>
+                        <p style="margin: 3px 0 0 0; font-size: 11px; color: #888;">Romerito Gastronomia · Sistema PRÉCIS · Extração · Final Antecipado</p>
+                    </div>
+                    <div style="background-color: #d4a323; color: white; padding: 0 25px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; letter-spacing: 1px;">
+                        FINAL ANTECIPADO
+                    </div>
+                </div>
+                
+                ${section.pageNum === 1 ? `
+                <div style="border: 1px solid #f2c966; padding: 12px; margin-bottom: 15px; font-size: 11px; color: #444; background-color: #fffdf5;">
+                    <strong style="color: #c94038; font-size: 12px;">COMO USAR — LUCAS</strong><br>
+                    <span style="margin-top: 4px; display: inline-block;">INICIAL F = estoque em praça ao abrir. ENTREGUE = Requisitado no dia. Arquivar após uso.</span>
+                </div>
+                ` : ''}
+                
+                <div style="background-color: #d8e5f7; padding: 15px 20px; margin-bottom: 25px; border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">DATA: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;">${dateStr}</span></div>
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">DIA DA SEMANA: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;"></span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">RESPONSÁVEL: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;">${respStr}</span></div>
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">ASSINATURA: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;"></span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">INICIAL DIA SEG.: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;"></span></div>
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">CONFERIDO POR: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;"></span></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <div style="background-color: #2c3a4f; color: white; padding: 8px 15px; font-size: 13px; font-weight: bold; display: flex; align-items: center;">
+                        <div style="width: 6px; height: 16px; background-color: #c94038; margin-right: 10px;"></div> ${section.title}
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; background-color: white;">
+                        <thead>
+                            <tr style="background-color: #3b4b66; color: white;">
+                                <th style="padding: 10px 8px; width: 40px; text-align: center;">#</th>
+                                <th style="padding: 10px 8px; text-align: left; color: #f2c966;">Item</th>
+                                <th style="padding: 10px 8px; width: 50px; text-align: center;">Un.</th>
+                                <th style="padding: 10px 8px; width: 90px; text-align: center; color: #9bbcf4;">Inicial F</th>
+                                <th style="padding: 10px 8px; width: 90px; text-align: center; color: #8ff5ab;">Entregue</th>
+                                <th style="padding: 10px 8px; text-align: center; color: #ddd; width: 150px;">Obs / Desvio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${section.items.map((item, idx) => `
+                                <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f4f8fe'}; border-bottom: 1px solid #eef2f7;">
+                                    <td style="padding: 8px; text-align: center; color: #aab; font-size: 11px;">${!item.empty ? idx + 1 : ''}</td>
+                                    <td style="padding: 8px; font-weight: 600; color: #1a1a2e;">${item.empty ? '_______________________' : item.item}</td>
+                                    <td style="padding: 8px; text-align: center; color: #666;">${item.un}</td>
+                                    <td style="padding: 5px;"><div style="background-color: #c5dcfa; height: 28px; width: 100%; border-radius: 3px;"></div></td>
+                                    <td style="padding: 5px;"><div style="background-color: #d1f7d6; height: 28px; width: 100%; border-radius: 3px;"></div></td>
+                                    <td style="padding: 8px;"><div style="border-bottom: 1px dotted #ccc; height: 16px; width: 100%;"></div></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+        `;
+
+        if (section.footer === 'add') {
+            printHtml += `
+                <div style="margin-bottom: 25px;">
+                    <div style="background-color: #2c3a4f; color: white; padding: 8px 15px; font-size: 13px; font-weight: bold; display: flex; align-items: center;">
+                        <div style="width: 6px; height: 16px; background-color: #c94038; margin-right: 10px;"></div> ADICIONAR — itens extras ou do dia
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; background-color: white;">
+                        <thead>
+                            <tr style="background-color: #3b4b66; color: white;">
+                                <th style="padding: 10px 8px; width: 40px; text-align: center;">#</th>
+                                <th style="padding: 10px 8px; text-align: center; color: #f2c966;">Item</th>
+                                <th style="padding: 10px 8px; width: 50px; text-align: center;">Un.</th>
+                                <th style="padding: 10px 8px; width: 90px; text-align: center; color: #9bbcf4;">Inicial F</th>
+                                <th style="padding: 10px 8px; width: 90px; text-align: center; color: #8ff5ab;">Entregue</th>
+                                <th style="padding: 10px 8px; text-align: center; color: #ddd; width: 150px;">Obs / Desvio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${[1, 2, 3, 4].map((item, idx) => `
+                                <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f4f8fe'}; border-bottom: 1px solid #eef2f7;">
+                                    <td style="padding: 8px; text-align: center; color: #aab; font-size: 11px;">${idx + 1}</td>
+                                    <td style="padding: 8px; font-weight: 600; color: #1a1a2e; border-bottom: 1px dotted #ccc;"></td>
+                                    <td style="padding: 8px; text-align: center; color: #666; border-bottom: 1px dotted #ccc;"></td>
+                                    <td style="padding: 5px;"><div style="background-color: #c5dcfa; height: 28px; width: 100%; border-radius: 3px;"></div></td>
+                                    <td style="padding: 5px;"><div style="background-color: #d1f7d6; height: 28px; width: 100%; border-radius: 3px;"></div></td>
+                                    <td style="padding: 8px;"><div style="border-bottom: 1px dotted #ccc; height: 16px; width: 100%;"></div></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } else if (section.footer.startsWith('obs')) {
+            printHtml += `
+                <div style="margin-bottom: 25px;">
+                    <div style="background-color: #2c3a4f; color: white; padding: 8px 15px; font-size: 13px; font-weight: bold;">
+                        OBSERVAÇÕES DO TURNO
+                    </div>
+                    <div style="background-color: #f4f6fb; min-height: ${section.footer === 'obs_small' ? '40px' : '80px'}; border-bottom: 1px solid #eef2f7;">
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                    <div style="border: 1px solid #ccc; flex: 1; text-align: center; padding: 10px; font-size: 11px; color: #888; background-color: #f0f0f0;">Responsável pelo Turno</div>
+                    <div style="border: 1px solid #ccc; flex: 1; text-align: center; padding: 10px; font-size: 11px; color: #888; margin: 0 10px; background-color: #f0f0f0;">Chef / Supervisor</div>
+                    <div style="border: 1px solid #ccc; flex: 1; text-align: center; padding: 10px; font-size: 11px; color: #888; background-color: #f0f0f0;">Horário de Fechamento</div>
+                </div>
+            `;
+        }
+
+        printHtml += `
+                <div style="position: absolute; bottom: 10px; left: 40px; right: 40px; display: flex; justify-content: space-between; font-size: 10px; color: #888; border-top: 1px solid #ccc; padding-top: 10px;">
+                    <div><strong style="color: #d4a323;">ROMERITO GASTRONOMIA</strong></div>
+                    <div>Contagem Final - Diária · Lucas · Sistema PRÉCIS</div>
+                    <div>Pág. ${section.pageNum}/4</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Contagem Final - Diária</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+            <style>
+                body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #000; margin: 0; padding: 0; background-color: #e0e0e0; }
+                @media print {
+                    body { padding: 0; margin: 0; background-color: white !important; }
+                    @page { margin: 0; size: A4 portrait; }
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    .print-page { min-height: 100vh; padding: 1.5cm 1cm !important; box-sizing: border-box; }
+                }
+            </style>
+        </head>
+        <body>
+            ${printHtml}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => {
+        printWindow.print();
+    }, 500);
+};
+
+
+window.printContagemFinalDiariaOriginal = function() {
+    let printHtml = '';
+    // Original leaves date and responsible blank!
+    const dateStr = '';
+    const respStr = '';
+    
+    const CONTAGEM_FINAL_SCHEMA = [
+        {
+            title: "ENTRADAS & PETISCOS",
+            items: [
+                { item: "Bolinho de Mandioca", un: "UN" },
+                { item: "Burrata", un: "UN" },
+                { item: "Milho Doce", un: "PÇ" },
+                { item: "Pastel de Queijo", un: "UN" },
+                { item: "Pastel Bobó de Camarão", un: "UN" },
+                { item: "Arañita / Lulinha", un: "PÇ" },
+                { item: "Picolé Mineiro", un: "UN" },
+                { item: "Croquete de Costela", un: "UN" },
+                { item: "Tulipinha de Frango", un: "UN" },
+                { item: "Batatas Fritas", un: "PCT" },
+                { item: "Carpaccio", un: "UN" },
+                { item: "Baguete", un: "UN" },
+                { item: "", un: "——", empty: true },
+                { item: "", un: "——", empty: true }
+            ],
+            footer: "obs",
+            pageNum: 1
+        },
+        {
+            title: "CARNES & PARRILLA",
+            items: [
+                { item: "Ancho Red Angus", un: "UN" },
+                { item: "Assado de Tira", un: "PCT" },
+                { item: "Linguiça Artesanal de Ancho", un: "UN" },
+                { item: "Linguiça de Cordeiro", un: "UN" },
+                { item: "Fraldinha", un: "PÇ" },
+                { item: "Picanha Bovina", un: "PÇ" },
+                { item: "Picanha de Cordeiro", un: "PÇ" },
+                { item: "Denver", un: "PÇ" },
+                { item: "Flat Iron", un: "PÇ" },
+                { item: "Chorizo", un: "UN" },
+                { item: "Hambúrguer", un: "UN" },
+                { item: "Filé Mignon", un: "PÇ" },
+                { item: "Isca de Filé", un: "PÇ" },
+                { item: "Parmegiana", un: "UN" },
+                { item: "Tournedor 200g", un: "UN" },
+                { item: "", un: "——", empty: true },
+                { item: "", un: "——", empty: true }
+            ],
+            footer: "obs",
+            pageNum: 2
+        },
+        {
+            title: "PESCADOS & FRUTOS DO MAR",
+            items: [
+                { item: "Polvo", un: "PÇ" },
+                { item: "Pescado do Dia", un: "PÇ" },
+                { item: "Camarão", un: "UN" },
+                { item: "Lulinha / Arañita", un: "PÇ" },
+                { item: "Salmão", un: "PÇ" },
+                { item: "Tilápia", un: "PÇ" },
+                { item: "Ceviche", un: "PÇ" },
+                { item: "Tataki", un: "PÇ" },
+                { item: "Sando", un: "UN" },
+                { item: "Bacalhau Confitado", un: "PÇ" },
+                { item: "", un: "——", empty: true },
+                { item: "", un: "——", empty: true }
+            ],
+            footer: "add",
+            pageNum: 3
+        },
+        {
+            title: "ALMOÇO EXECUTIVO — Carnes & Proteínas",
+            items: [
+                { item: "Chorizo", un: "PCT" },
+                { item: "Parmegiana", un: "PCT" },
+                { item: "Fraldinha 200g", un: "PCT" },
+                { item: "Peito de Frango", un: "PCT" },
+                { item: "Salmão", un: "PCT" },
+                { item: "Tilápia", un: "PCT" }
+            ],
+            footer: "obs_small",
+            pageNum: 4
+        }
+    ];
+
+    CONTAGEM_FINAL_SCHEMA.forEach(section => {
+        printHtml += `
+            <div class="print-page" style="background-color: #f4f6fb; padding: 20px 40px; min-height: 100vh; page-break-after: always; position: relative;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 15px;">
+                    <div style="background-color: #faeaea; padding: 15px 30px; display: flex; align-items: center; justify-content: center;">
+                        <img src="data:image/png;base64,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" style="width: 180px;">
+                    </div>
+                    <div style="text-align: left; flex: 1; padding-left: 20px; display: flex; flex-direction: column; justify-content: center;">
+                        <h2 style="margin: 0; font-size: 20px; color: #1a1a2e; font-family: 'Outfit', sans-serif;">Contagem Final - Diária</h2>
+                        <p style="margin: 3px 0 0 0; font-size: 11px; color: #888;">Romerito Gastronomia · Sistema PRÉCIS · Extração · Original</p>
+                    </div>
+                    <div style="background-color: #3b4b66; color: white; padding: 0 25px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; letter-spacing: 1px;">
+                        FOLHA ORIGINAL
+                    </div>
+                </div>
+                
+                ${section.pageNum === 1 ? `
+                <div style="border: 1px solid #f2c966; padding: 12px; margin-bottom: 15px; font-size: 11px; color: #444; background-color: #fffdf5;">
+                    <strong style="color: #c94038; font-size: 12px;">COMO USAR — LUCAS</strong><br>
+                    <span style="margin-top: 4px; display: inline-block;">INICIAL F = estoque em praça ao abrir. ENTREGUE = Requisitado no dia. Arquivar após uso.</span>
+                </div>
+                ` : ''}
+                
+                <div style="background-color: #d8e5f7; padding: 15px 20px; margin-bottom: 25px; border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">DATA: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;">${dateStr}</span></div>
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">DIA DA SEMANA: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;"></span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">RESPONSÁVEL: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;">${respStr}</span></div>
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">ASSINATURA: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;"></span></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">INICIAL DIA SEG.: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;"></span></div>
+                        <div style="flex: 1; font-size: 12px; font-weight: bold;">CONFERIDO POR: <span style="font-weight: normal; border-bottom: 1px dotted #888; width: 150px; display: inline-block; margin-left: 5px;"></span></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <div style="background-color: #2c3a4f; color: white; padding: 8px 15px; font-size: 13px; font-weight: bold; display: flex; align-items: center;">
+                        <div style="width: 6px; height: 16px; background-color: #c94038; margin-right: 10px;"></div> ${section.title}
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; background-color: white;">
+                        <thead>
+                            <tr style="background-color: #3b4b66; color: white;">
+                                <th style="padding: 10px; text-align: left; border: 1px solid #c8d4e6; width: 35%;">Item</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 10%;">UN</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 15%;">INICIAL F.</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 15%;">ENTREGUE</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 15%;">SOBRA F.</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 10%;">VENDIDO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${section.items.map((item, idx) => `
+                                <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f8f9fb'};">
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; font-weight: bold; color: #2c3a4f;">${item.item}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center; color: #666;">${item.un}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center;">${item.empty ? '' : ''}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center; background-color: #fdfdfd;">${item.empty ? '' : ''}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center; background-color: #fcfcfc;">${item.empty ? '' : ''}</td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center; background-color: #fcfcfc;">${item.empty ? '' : ''}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                ${section.footer === 'obs' ? `
+                <div style="margin-top: 30px; border: 1px solid #d8e5f7; border-radius: 4px; overflow: hidden;">
+                    <div style="background-color: #f4f6fb; padding: 8px 15px; font-weight: bold; font-size: 12px; color: #444; border-bottom: 1px solid #d8e5f7;">
+                        Observações do Turno:
+                    </div>
+                    <div style="height: 120px; background-color: white;"></div>
+                </div>
+                ` : ''}
+                
+                ${section.footer === 'obs_small' ? `
+                <div style="margin-top: 30px; border: 1px solid #d8e5f7; border-radius: 4px; overflow: hidden;">
+                    <div style="background-color: #f4f6fb; padding: 8px 15px; font-weight: bold; font-size: 12px; color: #444; border-bottom: 1px solid #d8e5f7;">
+                        Observações do Turno:
+                    </div>
+                    <div style="height: 60px; background-color: white;"></div>
+                </div>
+                ` : ''}
+
+                ${section.footer === 'add' ? `
+                <div style="margin-top: 30px;">
+                    <div style="background-color: #2c3a4f; color: white; padding: 8px 15px; font-size: 13px; font-weight: bold; display: flex; align-items: center;">
+                        <div style="width: 6px; height: 16px; background-color: #4CAF50; margin-right: 10px;"></div> ADICIONAR
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; background-color: white;">
+                        <thead>
+                            <tr style="background-color: #3b4b66; color: white;">
+                                <th style="padding: 10px; text-align: left; border: 1px solid #c8d4e6; width: 35%;">Item</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 10%;">UN</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 15%;">INICIAL F.</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 15%;">ENTREGUE</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 15%;">SOBRA F.</th>
+                                <th style="padding: 10px; text-align: center; border: 1px solid #c8d4e6; width: 10%;">VENDIDO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${[1, 2, 3].map(i => `
+                                <tr style="background-color: #ffffff;">
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; font-weight: bold; color: #2c3a4f; height: 20px;"></td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center; color: #666;"></td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center;"></td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center; background-color: #fdfdfd;"></td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center; background-color: #fcfcfc;"></td>
+                                    <td style="padding: 8px 10px; border: 1px solid #e1e5eb; text-align: center; background-color: #fcfcfc;"></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                ` : ''}
+
+                <div style="position: absolute; bottom: 20px; right: 40px; font-size: 10px; color: #888;">
+                    Página ${section.pageNum} de 4
+                </div>
+            </div>
+        `;
+    });
+
+    const contentHtml = printHtml;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Imprimir Contagem Final Diária Original</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+            <style>
+                body {
+                    font-family: 'Inter', sans-serif;
+                    background-color: #e0e5ec;
+                    margin: 0;
+                    padding: 0;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                @media print {
+                    body { padding: 0; margin: 0; }
+                    @page { margin: 0.5cm; }
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            ${contentHtml}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => {
+        printWindow.print();
+    }, 500);
 };
