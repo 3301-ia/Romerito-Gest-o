@@ -24,7 +24,38 @@
         <div class="splash-loader"></div>
     </div>
 
-    <div class="app-container">
+    
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%); z-index: 9990; justify-content: center; align-items: center; font-family: 'Inter', sans-serif;">
+        <div style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(197, 168, 109, 0.2); border-radius: 20px; padding: 40px; width: 90%; max-width: 400px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; animation: fadeIn 0.8s ease-out;">
+            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                <img src="logo.png" class="cintilante" alt="Romerito Gastronomia" style="width: 260px; max-width: 100%; height: auto; object-fit: contain;">
+            </div>
+            <h2 style="color: var(--accent-gold); font-family: 'Playfair Display', serif; font-size: 24px; text-align: center; margin-bottom: 30px; font-weight: 600;">Acesso ao Sistema</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label style="color: var(--text-muted); font-size: 13px; margin-bottom: 5px; display: block;">Usuário</label>
+                    <select id="login-user" required class="form-control" style="width: 100%; margin-bottom: 15px; border-radius: 8px;">
+                        <option value="">Selecione o usuário...</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="chef">Chef</option>
+                    </select>
+                </div>
+                <div class="form-group" id="group-password">
+                    <label id="label-password" style="color: var(--text-muted); font-size: 13px; margin-bottom: 5px; display: block;">Senha</label>
+                    <input type="password" id="login-password" required class="form-control" placeholder="••••••••" style="width: 100%; border-radius: 8px;">
+                </div>
+                <button type="submit" class="action-btn" style="width: 100%; justify-content: center; margin-top: 10px; padding: 12px; font-size: 16px; border-radius: 8px;">Entrar</button>
+            </form>
+            <div id="login-error" style="color: #ff4c4c; font-size: 13px; text-align: center; margin-top: 15px; display: none;"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button type="button" onclick="logout()" id="btn-logout" style="display: none; background: none; border: none; color: var(--text-muted); text-decoration: underline; cursor: pointer; font-size: 12px;">Sair / Trocar Usuário</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="app-container" style="display: none;">
+
         <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-header">

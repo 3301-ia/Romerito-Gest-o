@@ -1220,7 +1220,6 @@ textarea.form-control {
         font-family: 'Inter', sans-serif;
         display: flex;
         flex-direction: column;
-        min-height: 27.5cm;
     }
     .print-header {
         background-color: #141423 !important;
@@ -1328,7 +1327,7 @@ textarea.form-control {
         justify-content: space-between;
         padding: 5px 20px;
         font-size: 10px;
-        margin-top: auto !important;
+        margin-top: 30px !important;
         width: 100%;
         box-sizing: border-box;
     }
@@ -1436,4 +1435,14 @@ textarea.form-control {
         page-break-inside: avoid;
     }
    
+}
+
+@keyframes brilhoCintilante {
+    0% { filter: drop-shadow(0 0 5px rgba(197, 168, 109, 0.3)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 20px rgba(197, 168, 109, 0.9)) brightness(1.2); transform: scale(1.02); }
+    100% { filter: drop-shadow(0 0 5px rgba(197, 168, 109, 0.3)); transform: scale(1); }
+}
+
+.cintilante {
+    animation: brilhoCintilante 3s infinite ease-in-out;
 }

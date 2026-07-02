@@ -368,11 +368,116 @@ async function initApp() {
     
     renderActiveTab();
     
+
+    document.querySelector('.app-container').style.display = 'none';
+
+    const loginUser = document.getElementById('login-user');
+    const labelPwd = document.getElementById('label-password');
+    const loginPwd = document.getElementById('login-password');
+    const loginError = document.getElementById('login-error');
+    
+    if (loginUser) {
+        loginUser.addEventListener('change', () => {
+            loginError.style.display = 'none';
+            loginPwd.value = '';
+            if (loginUser.value === 'chef') {
+                const chefPwd = localStorage.getItem('chef_password');
+                if (!chefPwd) {
+                    labelPwd.innerText = 'Crie uma Senha para o Chef';
+                    loginPwd.placeholder = 'Digite uma nova senha';
+                } else {
+                    labelPwd.innerText = 'Senha do Chef';
+                    loginPwd.placeholder = '••••••••';
+                }
+            } else if (loginUser.value === 'supervisor') {
+                labelPwd.innerText = 'Senha do Supervisor';
+                loginPwd.placeholder = '••••••••';
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = loginUser.value;
+            const pwd = loginPwd.value;
+            
+            if (user === 'supervisor') {
+                if (pwd === '3301') {
+                    proceedToApp(user);
+                } else {
+                    showLoginError('Senha do supervisor incorreta!');
+                }
+            } else if (user === 'chef') {
+                const savedChefPwd = localStorage.getItem('chef_password');
+                if (!savedChefPwd) {
+                    localStorage.setItem('chef_password', pwd);
+                    proceedToApp(user);
+                } else {
+                    if (pwd === savedChefPwd) {
+                        proceedToApp(user);
+                    } else {
+                        showLoginError('Senha do chef incorreta!');
+                    }
+                }
+            }
+        });
+    }
+
+    function showLoginError(msg) {
+        if(loginError) {
+            loginError.innerText = msg;
+            loginError.style.display = 'block';
+        }
+    }
+
+    function proceedToApp(user) {
+        localStorage.setItem('auth_user', user);
+        document.getElementById('login-screen').style.display = 'none';
+        document.querySelector('.app-container').style.display = 'flex';
+        // Add logout button to top header
+        if (!document.getElementById('header-logout-btn')) {
+            const header = document.querySelector('.top-header');
+            if (header) {
+                const logoutBtn = document.createElement('button');
+                logoutBtn.id = 'header-logout-btn';
+                logoutBtn.className = 'action-btn secondary';
+                logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sair';
+                logoutBtn.style.marginLeft = '15px';
+                logoutBtn.style.padding = '8px 15px';
+                logoutBtn.style.fontSize = '12px';
+                logoutBtn.onclick = function() {
+                    localStorage.removeItem('auth_user');
+                    window.location.reload();
+                };
+                header.appendChild(logoutBtn);
+            }
+        }
+    }
+
+    window.logout = function() {
+        localStorage.removeItem('auth_user');
+        window.location.reload();
+    };
+
+    function checkAuth() {
+        const authUser = localStorage.getItem('auth_user');
+        if (authUser) {
+            proceedToApp(authUser);
+        } else {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.querySelector('.app-container').style.display = 'none';
+        }
+    }
+
     setTimeout(() => {
         const splash = document.getElementById('splash-screen');
-        if (splash) {
+        if(splash) {
             splash.classList.add('hidden');
-            setTimeout(() => splash.remove(), 800);
+            setTimeout(() => {
+                splash.remove();
+                checkAuth();
+            }, 800);
+        } else {
+            checkAuth();
         }
     }, 2200);
 }
