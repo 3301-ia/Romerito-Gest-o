@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Contagem Final - Diária (Folha Única)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 11px; color: #333; margin: 0; padding: 0; background-color: #e0e0e0; }
+        .print-page { background-color: #ffffff; padding: 10px 15px; position: relative; display: block; box-sizing: border-box; }
+        .header-container { display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 5px; }
+        .logo-box { padding: 10px 15px; display: flex; align-items: center; justify-content: center; }
+        .header-title-box { text-align: left; flex: 1; padding-left: 10px; display: flex; flex-direction: column; justify-content: center; }
+        .header-title-box h2 { margin: 0; font-size: 16px; color: #1a1a2e; font-family: 'Outfit', sans-serif; }
+        .header-title-box p { margin: 2px 0 0 0; font-size: 9px; color: #888; }
+        .header-badge { background-color: #999; color: white; padding: 0 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; letter-spacing: 1px; }
+        
+        .info-grid { display: flex; flex-direction: column; gap: 5px; margin-bottom: 5px; }
+        .info-box-full { border: 1px solid #ccc; padding: 6px; font-size: 9px; color: #444; }
+        
+        .info-box { background-color: #f0f0f0; padding: 8px 10px; margin-bottom: 5px; border-radius: 4px; font-size: 10px; display: flex; flex-direction: column; gap: 5px; }
+        .info-row { display: flex; justify-content: space-between; }
+        .info-item { flex: 1; font-weight: bold; display: flex; align-items: center; }
+        .info-line { font-weight: normal; border-bottom: 1px dotted #888; flex: 1; display: inline-block; margin-left: 5px; margin-right: 15px; height: 12px; }
+        
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 90px; }
+        
+        .section-box { margin-bottom: 10px; }
+        .section-title { background-color: #2c3a4f; color: white; padding: 4px 8px; font-size: 11px; font-weight: bold; display: flex; align-items: center; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 11px; background-color: white; }
+        th { padding: 4px; text-align: center; border: 1px solid #ccc; background-color: #3b4b66; color: white; }
+        th:first-child { text-align: left; }
+        td { padding: 4px 5px; border: 1px solid #ccc; }
+        
+        .footer-boxes { position: fixed; bottom: 75px; left: 15px; right: 15px; width: calc(100% - 30px); display: flex; justify-content: space-between; padding-top: 5px; box-sizing: border-box; gap: 10px; }
+        .footer-box { border: 1px solid #ccc; flex: 1; text-align: center; padding: 25px 10px 5px 10px; font-size: 10px; color: #888; background-color: #f9f9f9; border-radius: 4px; }
+        
+        .page-footer { position: fixed; bottom: 10px; left: 15px; right: 15px; width: calc(100% - 30px); box-sizing: border-box; background-color: #2c3a4f; color: white; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
+        
+        @media print {
+            body { padding: 0; margin: 0; background-color: white !important; }
+            @page { margin: 0.5cm; size: A4 portrait; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-page">
+        <!-- HEADER -->
+        <div class="header-container">
+            <div class="logo-box">
+                <img src="logo.png" alt="Romerito Logo" style="width: 220px; margin-bottom: 2px;">
+            </div>
+            <div class="header-title-box">
+                <h2>Contagem Final - Diária</h2>
+                <p>Romerito Gastronomia · Sistema PRÉCIS · Extração · Original</p>
+            </div>
+            <div class="header-badge">
+                FINAL ANTECIPADO
+            </div>
+        </div>
+        
+        <!-- INFO BOXES -->
+        <div class="info-grid">
+            <div class="info-box-full" style="font-size: 9px; background-color: #f5f5f5;">
+                <strong>COMO USAR</strong><br>
+                INICIAL F. = estoque em praça ou alem. ENTREGUE = Requisitado no dia. Arquivar após uso.
+            </div>
+        </div>
+        
+        <!-- INFO BOX -->
+        <div class="info-box">
+            <div class="info-row">
+                <div class="info-item">DATA: <span class="info-line"></span></div>
+                <div class="info-item">DIA DA SEMANA: <span class="info-line"></span></div>
+            </div>
+            <div class="info-row">
+                <div class="info-item">RESPONSÁVEL: <span class="info-line"></span></div>
+                <div class="info-item">ASSINATURA: <span class="info-line"></span></div>
+            </div>
+            <div class="info-row">
+                <div class="info-item">INICIAL DIA SEG.: <span class="info-line"></span></div>
+                <div class="info-item">CONFERIDO POR: <span class="info-line"></span></div>
+            </div>
+        </div>
+
+        <div id="print-content" class="grid-container"></div>
+        
+        <div class="footer-boxes">
+            <div class="footer-box">Responsável pelo Turno</div>
+            <div class="footer-box">Chef / Supervisor</div>
+            <div class="footer-box">Horário de Fechamento</div>
+        </div>
+
+        <!-- PAGE FOOTER -->
+        <div class="page-footer">
+            <div><img src="logo.png" alt="Romerito Logo" style="height: 24px; filter: brightness(0) invert(1);"></div>
+            <div>Contagem Final - Diária - Sistema PRÉCIS</div>
+            <div>Pág. 1/1</div>
+        </div>
+    </div>
+
+    <script>
+        const CONTAGEM_FINAL_SCHEMA = [
+            {
+                title: "ENTRADAS & PETISCOS",
+                items: [
+                    { item: "Bolinho de Mandioca", un: "UN" },
+                    { item: "Burrata", un: "UN" },
+                    { item: "Milho Doce", un: "PÇ" },
+                    { item: "Pastel de Queijo", un: "UN" },
+                    { item: "Pastel Bobó de Camarão", un: "UN" },
+                    { item: "Arañita / Lulinha", un: "PÇ" },
+                    { item: "Picolé Mineiro", un: "UN" },
+                    { item: "Croquete de Costela", un: "UN" },
+                    { item: "Tulipinha de Frango", un: "UN" },
+                    { item: "Batatas Fritas", un: "PCT" },
+                    { item: "Carpaccio", un: "UN" },
+                    { item: "Baguete", un: "UN" }
+                ],
+                footer: "obs"
+            },
+            {
+                title: "CARNES & PARRILLA",
+                items: [
+                    { item: "Ancho Red Angus", un: "UN" },
+                    { item: "Assado de Tira", un: "PCT" },
+                    { item: "Linguiça Artesanal de Ancho", un: "UN" },
+                    { item: "Linguiça de Cordeiro", un: "UN" },
+                    { item: "Fraldinha", un: "PÇ" },
+                    { item: "Picanha Bovina", un: "PÇ" },
+                    { item: "Picanha de Cordeiro", un: "PÇ" },
+                    { item: "Denver", un: "PÇ" },
+                    { item: "Flat Iron", un: "PÇ" },
+                    { item: "Chorizo", un: "UN" },
+                    { item: "Hambúrguer", un: "UN" },
+                    { item: "Filé Mignon", un: "PÇ" },
+                    { item: "Isca de Filé", un: "PÇ" },
+                    { item: "Parmegiana", un: "UN" },
+                    { item: "Tournedor 200g", un: "UN" }
+                ],
+                footer: "none"
+            },
+            {
+                title: "PESCADOS & FRUTOS DO MAR",
+                items: [
+                    { item: "Polvo", un: "PÇ" },
+                    { item: "Pescado do Dia", un: "PÇ" },
+                    { item: "Camarão", un: "UN" },
+                    { item: "Lulinha / Arañita", un: "PÇ" },
+                    { item: "Salmão", un: "PÇ" },
+                    { item: "Tilápia", un: "PÇ" },
+                    { item: "Ceviche", un: "PÇ" },
+                    { item: "Tataki", un: "PÇ" },
+                    { item: "Sando", un: "UN" },
+                    { item: "Bacalhau Confitado", un: "BAG" }
+                ],
+                footer: "none"
+            },
+            {
+                title: "ALMOÇO EXECUTIVO — Carnes & Proteínas",
+                items: [
+                    { item: "Chorizo", un: "PCT" },
+                    { item: "Parmegiana", un: "PCT" },
+                    { item: "Fraldinha 200g", un: "PCT" },
+                    { item: "Peito de Frango", un: "PCT" },
+                    { item: "Salmão", un: "PCT" },
+                    { item: "Tilápia", un: "PCT" }
+                ],
+                footer: "obs_small"
+            }
+        ];
+
+        let col1 = '';
+        let col2 = '';
+        
+        CONTAGEM_FINAL_SCHEMA.forEach((section, index) => {
+            let sectionHtml = `
+                <div class="section-box">
+                    <div class="section-title">
+                        <div style="width: 4px; height: 12px; background-color: #c94038; margin-right: 6px;"></div> ${section.title}
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 15px;">#</th>
+                                <th style="width: 40%;">Item</th>
+                                <th style="width: 10%;">UN</th>
+                                <th style="width: 15%;">INICIAL F.</th>
+                                <th style="width: 15%;">ENTREGUE</th>
+                                <th style="width: 15%;">OBS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${section.items.map((item, idx) => `
+                                <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f8f9fb'};">
+                                    <td style="text-align: center; color: #777;">${idx + 1}</td>
+                                    <td style="font-weight: bold; color: #2c3a4f;">${item.item}</td>
+                                    <td style="text-align: center; color: #666;">${item.un}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+            `;
+
+            if (section.footer === 'add') {
+                sectionHtml += `
+                    <div class="section-title" style="margin-top: 5px; background-color: #4CAF50;">
+                        ADICIONAR — Itens extras
+                    </div>
+                    <table>
+                        <tbody>
+                            ${[1, 2].map(() => `
+                                <tr>
+                                    <td style="width: 15px; text-align: center; color: #777;">-</td>
+                                    <td style="width: 40%; height: 14px;"></td>
+                                    <td style="width: 10%;"></td>
+                                    <td style="width: 15%;"></td>
+                                    <td style="width: 15%;"></td>
+                                    <td style="width: 15%;"></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            if (section.footer === 'obs' || section.footer === 'obs_small') {
+                sectionHtml += `
+                    <div style="border: 1px solid #ccc; margin-top: 5px;">
+                        <div style="background-color: #f4f6fb; padding: 4px; font-weight: bold; font-size: 9px; color: #444; border-bottom: 1px solid #ccc;">
+                            Observações do Turno:
+                        </div>
+                        <div style="height: ${section.footer === 'obs' ? '30px' : '20px'}; background-color: white;"></div>
+                    </div>
+                `;
+            }
+
+            sectionHtml += `</div>`;
+
+            // Enviar para coluna 1 ou 2 baseado na altura visual
+            if (index === 0 || index === 2) { // Entradas e Pescados na col1 (12+10=22 items)
+                col1 += sectionHtml;
+            } else { // Carnes e Executivo na col2 (15+6=21 items)
+                col2 += sectionHtml;
+            }
+        });
+
+        document.getElementById('print-content').innerHTML = `
+            <div class="col">${col1}</div>
+            <div class="col">${col2}</div>
+        `;
+        
+        window.onload = function() { 
+            window.print(); 
+        };
+    </script>
+</body>
+</html>
