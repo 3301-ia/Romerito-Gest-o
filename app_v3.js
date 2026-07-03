@@ -3909,6 +3909,12 @@ window.submitFicha = async function(e) {
 // --- ARQUIVOS COZINHA ---
 const arquivosCozinhaList = [
     {
+        nome: "Contagem Diária Unificada (Folha Única)",
+        descricao: "Planilha de contagem diária contendo todos os itens separados por setor em uma única folha.",
+        icone: "fas fa-file-invoice",
+        url: "imprimir_contagem_unica.html"
+    },
+    {
         nome: "Contagem Final - Diária",
         descricao: "Planilha física para contagem de Final Antecipado do estoque (Entradas, Carnes, Pescados e Executivo).",
         icone: "fas fa-file-pdf",
