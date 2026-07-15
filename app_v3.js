@@ -3934,6 +3934,12 @@ window.submitFicha = async function(e) {
 // --- ARQUIVOS COZINHA ---
 const arquivosCozinhaList = [
     {
+        nome: "Diagrama Vida do Insumo (Diamante)",
+        descricao: "Rastreabilidade e fluxo do insumo no sistema, desde a entrada até a expedição.",
+        icone: "fas fa-project-diagram",
+        url: "imprimir_diagrama_insumo.html"
+    },
+    {
         nome: "Contagem Diária Unificada (Folha Única)",
         descricao: "Planilha de contagem diária contendo todos os itens separados por setor em uma única folha.",
         icone: "fas fa-file-invoice",
