@@ -12,6 +12,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js for analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Flatpickr for Date highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
 </head>
 <body>
     
@@ -131,9 +135,12 @@
                 
                 <!-- TAB: DASHBOARD -->
                 <div class="tab-panel active" id="tab-dashboard">
-                    <div class="content-header">
-                        <h2>Painel Geral</h2>
-                        <p>Visão estratégica de Romerito Gastronomia</p>
+                    <div class="content-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2>Painel Geral</h2>
+                            <p>Visão estratégica de Romerito Gastronomia</p>
+                        </div>
+                        <button class="action-btn" style="background: var(--primary-color); border: none; color: #fff; font-weight: bold;" onclick="generateFechamentoDiario()"><i class="fas fa-file-invoice"></i> Fechamento Diário</button>
                     </div>
                     <!-- Metrics Cards Grid -->
                     <div class="metrics-grid">
@@ -515,7 +522,8 @@
                             </select>
                             <button class="btn btn-primary" onclick="document.querySelector('[data-tab=\'tab-fichas\']').click()"><i class="fas fa-book-open"></i> Gerenciar Fichas Técnicas</button>
                             <button class="btn btn-secondary" onclick="generateProductionPlan()">Gerar Produção Diária</button>
-                            <button class="btn btn-primary" onclick="printPrepPlan()" id="btn-print-preps" style="display:none;">🖨️ Imprimir Preps</button>
+                            <button class="btn btn-primary" onclick="printPrepPlan()" id="btn-print-preps" style="display:none;"><i class="fas fa-print"></i> Imprimir Preps</button>
+                            <button class="btn btn-primary" onclick="printFolhaRequisicao()" id="btn-print-req-preps" style="display:none; background-color: #2a5a3a; border-color: #2a5a3a;"><i class="fas fa-print"></i> Imprimir Requisição</button>
                         </div>
                     </div>
 
@@ -811,7 +819,10 @@
                         <div id="mon-temperaturas-panel">
                             <div class="filters-bar" style="justify-content: space-between;">
                                 <h4 style="font-size: 14px; font-weight: 600;">Monitoramento de Equipamentos ANVISA</h4>
-                                <button class="action-btn" onclick="openAddTempModal()"><i class="fas fa-plus"></i> Medir Temperatura</button>
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="action-btn" style="background-color: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);" onclick="window.open('imprimir_temperaturas.html', '_blank')"><i class="fas fa-print"></i> Imprimir Folha</button>
+                                    <button class="action-btn" onclick="openAddTempModal()"><i class="fas fa-plus"></i> Medir Temperatura</button>
+                                </div>
                             </div>
                             <div class="table-container">
                                 <table class="custom-table">

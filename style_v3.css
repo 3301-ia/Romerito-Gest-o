@@ -1214,12 +1214,20 @@ textarea.form-control {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
+    @page {
+        size: A4 portrait;
+        margin: 0.5cm;
+    }
     .print-page {
         page-break-after: always;
         padding: 0;
         font-family: 'Inter', sans-serif;
         display: flex;
         flex-direction: column;
+        height: 28.7cm !important;
+        max-height: 28.7cm !important;
+        overflow: hidden;
+        box-sizing: border-box;
     }
     .print-header {
         background-color: #141423 !important;
@@ -1445,4 +1453,149 @@ textarea.form-control {
 
 .cintilante {
     animation: brilhoCintilante 3s infinite ease-in-out;
+}
+
+/* Flatpickr checklist highlighting */
+.flatpickr-day.has-checklist-data {
+    font-weight: bold;
+    position: relative;
+}
+.flatpickr-day.has-checklist-data::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #c5a86d; /* Dourado da paleta Romerito para ficar mais sofisticado */
+}
+
+/* Flatpickr override for selected date marker */
+.flatpickr-day.selected, 
+.flatpickr-day.startRange, 
+.flatpickr-day.endRange, 
+.flatpickr-day.selected.inRange, 
+.flatpickr-day.startRange.inRange, 
+.flatpickr-day.endRange.inRange, 
+.flatpickr-day.selected:focus, 
+.flatpickr-day.startRange:focus, 
+.flatpickr-day.endRange:focus, 
+.flatpickr-day.selected:hover, 
+.flatpickr-day.startRange:hover, 
+.flatpickr-day.endRange:hover, 
+.flatpickr-day.selected.prevMonthDay, 
+.flatpickr-day.startRange.prevMonthDay, 
+.flatpickr-day.endRange.prevMonthDay, 
+.flatpickr-day.selected.nextMonthDay, 
+.flatpickr-day.startRange.nextMonthDay, 
+.flatpickr-day.endRange.nextMonthDay {
+    background: #c5a86d !important;
+    border-color: #c5a86d !important;
+    color: #fff !important;
+}
+
+/* Centralizar todos os conteudos do Checklist conforme solicitado */
+#checklist-form-container table th,
+#checklist-form-container table td,
+#checklist-praca-container table th,
+#checklist-praca-container table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+#checklist-form-container table select,
+#checklist-praca-container table select {
+    text-align: center !important;
+    text-align-last: center !important;
+    margin: 0 auto;
+}
+
+#checklist-form-container table input,
+#checklist-praca-container table input {
+    text-align: center !important;
+    margin: 0 auto;
+}
+
+#checklist-form-container .filters-bar,
+#checklist-praca-container .filters-bar {
+    justify-content: center !important;
+}
+
+
+/* MOBILE OVERHAUL CSS */
+#sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+#sidebar-overlay.open {
+    display: block;
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    /* Maximize space */
+    .main-content {
+        padding: 10px !important;
+    }
+    .content-body {
+        padding: 15px !important;
+    }
+    
+    /* Touch targets */
+    .action-btn, .btn, .nav-btn, .tab-btn, .form-control {
+        min-height: 44px;
+    }
+    
+    /* Responsive Tables */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+    }
+    .custom-table th, .custom-table td, .data-table th, .data-table td {
+        white-space: nowrap;
+        padding: 10px;
+    }
+    
+    /* Fix Filter Bars */
+    .filters-bar {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 15px;
+    }
+    .filters-bar > div {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+    
+    /* Horizontal Tabs Scroll */
+    .tabs-wrapper {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 5px;
+    }
+    .tabs-wrapper::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    /* Center toggle correctly */
+    .top-header {
+        position: sticky;
+        top: 0;
+        z-index: 900;
+        background: var(--bg-card);
+    }
 }

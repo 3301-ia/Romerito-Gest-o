@@ -1291,9 +1291,28 @@ function renderChecklist() {
     if (shiftInput.value !== activeChecklistShift) shiftInput.value = activeChecklistShift;
     
     if (!dateInput.dataset.listening) {
-        dateInput.addEventListener('change', (e) => {
-            activeChecklistDate = e.target.value;
-            renderChecklist();
+        flatpickr(dateInput, {
+            locale: "pt",
+            dateFormat: "Y-m-d",
+            disableMobile: true,
+            defaultDate: activeChecklistDate,
+            onChange: function(selectedDates, dateStr, instance) {
+                activeChecklistDate = dateStr;
+                renderChecklist();
+            },
+            onDayCreate: function(dObj, dStr, fp, dayElem) {
+                if (!state.checklist_history) return;
+                const year = dayElem.dateObj.getFullYear();
+                const month = String(dayElem.dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dayElem.dateObj.getDate()).padStart(2, '0');
+                const dateYMD = `${year}-${month}-${day}`;
+                const hasFilled = Object.keys(state.checklist_history).some(k => 
+                    k.startsWith(dateYMD + '|') && Object.keys(state.checklist_history[k]).length > 0
+                );
+                if (hasFilled) {
+                    dayElem.classList.add('has-checklist-data');
+                }
+            }
         });
         dateInput.dataset.listening = "true";
     }
@@ -1573,19 +1592,24 @@ function printChecklistForm() {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${sectionData.volumeItems.map(item => `
+                                ${sectionData.volumeItems.map(item => {
+                                    const vol = shiftData[sectionKey] ? shiftData[sectionKey]['vol_' + item.id] : null;
+                                    const getCircle = (val) => `<div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc; background-color: ${vol === val ? '#000 !important' : 'transparent'}; -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>`;
+                                    const circlesHtml = `<div style="display: flex; gap: 6px; justify-content: center;">${getCircle('1')}${getCircle('1/2')}${getCircle('1/4')}${getCircle('0')}</div>`;
+                                    return `
                                     <tr>
                                         <td style="text-align:center; color: #555 !important;">${item.id}</td>
                                         <td>
                                             <strong>${item.item}</strong>
                                             <div style="font-size: 10px; color: #666;">${item.sub || ''}</div>
                                         </td>
-                                        <td><div style="display: flex; gap: 6px; justify-content: center;"><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div></div></td>
+                                        <td>${circlesHtml}</td>
                                         <td></td>
                                         <td></td>
                                         <td style="text-align: center;"><div style="width: 16px; height: 16px; border: 1px solid #000; margin: 0 auto; display: inline-block;"></div></td>
                                     </tr>
-                                `).join('')}
+                                    `;
+                                }).join('')}
                             </tbody>
                 </table>
             `;
@@ -1770,6 +1794,7 @@ function generateProductionPlan() {
     if(document.getElementById('ftm-database-view')) document.getElementById('ftm-database-view').style.display = 'none';
     document.getElementById('prep-plan-view').style.display = 'block';
     document.getElementById('btn-print-preps').style.display = 'inline-block';
+    if(document.getElementById('btn-print-req-preps')) document.getElementById('btn-print-req-preps').style.display = 'inline-block';
 
     const shiftData = ensureChecklistState();
     const movementForecast = document.getElementById('forecast-movimento') ? document.getElementById('forecast-movimento').value : 'medio';
@@ -4069,10 +4094,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const shiftInput = document.getElementById('checklist-praca-filter-shift');
     
     if (dateInput) {
-        dateInput.value = activeChecklistPracaDate;
-        dateInput.addEventListener('change', (e) => {
-            activeChecklistPracaDate = e.target.value;
-            renderChecklistPraca();
+        flatpickr(dateInput, {
+            locale: "pt",
+            dateFormat: "Y-m-d",
+            disableMobile: true,
+            defaultDate: activeChecklistPracaDate,
+            onChange: function(selectedDates, dateStr, instance) {
+                activeChecklistPracaDate = dateStr;
+                renderChecklistPraca();
+            },
+            onDayCreate: function(dObj, dStr, fp, dayElem) {
+                if (!state.checklist_praca_history) return;
+                const year = dayElem.dateObj.getFullYear();
+                const month = String(dayElem.dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dayElem.dateObj.getDate()).padStart(2, '0');
+                const dateYMD = `${year}-${month}-${day}`;
+                const hasFilled = Object.keys(state.checklist_praca_history).some(k => 
+                    k.startsWith(dateYMD + '|') && Object.keys(state.checklist_praca_history[k]).length > 0
+                );
+                if (hasFilled) {
+                    dayElem.classList.add('has-checklist-data');
+                }
+            }
         });
     }
     
@@ -4142,19 +4185,24 @@ function printChecklistPracaForm() {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${sectionData.volumeItems.map(item => `
+                                ${sectionData.volumeItems.map(item => {
+                                    const vol = shiftData[sectionKey] ? shiftData[sectionKey]['vol_' + item.id] : null;
+                                    const getCircle = (val) => `<div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc; background-color: ${vol === val ? '#000 !important' : 'transparent'}; -webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>`;
+                                    const circlesHtml = `<div style="display: flex; gap: 6px; justify-content: center;">${getCircle('1')}${getCircle('1/2')}${getCircle('1/4')}${getCircle('0')}</div>`;
+                                    return `
                                     <tr>
                                         <td style="text-align:center; color: #555 !important;">${item.id}</td>
                                         <td>
                                             <strong>${item.item}</strong>
                                             <div style="font-size: 10px; color: #666;">${item.sub || ''}</div>
                                         </td>
-                                        <td><div style="display: flex; gap: 6px; justify-content: center;"><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div><div style="width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ccc;"></div></div></td>
+                                        <td>${circlesHtml}</td>
                                         <td></td>
                                         <td></td>
                                         <td style="text-align: center;"><div style="width: 16px; height: 16px; border: 1px solid #000; margin: 0 auto; display: inline-block;"></div></td>
                                     </tr>
-                                `).join('')}
+                                    `;
+                                }).join('')}
                             </tbody>
                         </table>
                 `;
@@ -4921,3 +4969,53 @@ window.printContagemFinalDiariaOriginal = function() {
         printWindow.print();
     }, 500);
 };
+
+
+// --- FECHAMENTO DIARIO ---
+function generateFechamentoDiario() {
+    const todayISO = new Date().toISOString().split('T')[0];
+    const d = new Date();
+    const todayLocale = d.toLocaleDateString('pt-BR'); // DD/MM/YYYY
+
+    // 1. Producao
+    const producao = state.preps_historico.filter(p => p.data === todayISO);
+
+    // 2. Requisicoes
+    const requisicoes = state.requisicoes.filter(r => r.data && r.data.includes(todayLocale));
+
+    // 3. Controles (Temp and Quebras) - PUXANDO A PLANILHA DEVIDA
+    const tempsDoDia = state.temperaturas.filter(t => t.dataHora && t.dataHora.includes(todayLocale));
+    
+    const EQUIPAMENTOS = ["Câmara Fria 01 - Carnes","Câmara Fria 02 - Hortifruti e Laticínios","Freezer Vertical 01 - Proteínas","Freezer Vertical 02 - Frutos do Mar","Freezer Horizontal - Estoque","Geladeira Bancada - Entradas (Fria)","Geladeira Bancada - Parrilla","Geladeira Vertical - Bebidas/Bar","Expositor de Sobremesas","Banho Maria - Molhos e Guarnições","Estufa de Salgados","Fritadeira 01 (Óleo)","Fritadeira 02 (Óleo)"];
+    const temperaturas = EQUIPAMENTOS.map(eq => {
+        const achou = tempsDoDia.find(t => t.equipamento === eq);
+        if (achou) return achou;
+        return { equipamento: eq, temp: "-", status: "Não Aferido", dataHora: "-" };
+    });
+
+    const quebras = state.quebras.filter(q => q.data && q.data.includes(todayLocale));
+
+    // 4. Contagem Final (Estoque) - FILTRADO APENAS PARA ITENS DA FOLHA UNICA
+    const itensFolhaUnica = ["Bolinho de Mandioca","Burrata","Milho Doce","Pastel de Queijo","Pastel Bobó de Camarão","Arañita / Lulinha","Picolé Mineiro","Croquete de Costela","Tulipinha de Frango","Batatas Fritas","Carpaccio","Baguete","Ancho Red Angus","Assado de Tira","Linguiça Artesanal de Ancho","Linguiça de Cordeiro","Fraldinha","Picanha Bovina","Picanha de Cordeiro","Denver","Flat Iron","Chorizo","Hambúrguer","Filé Mignon","Isca de Filé","Parmegiana","Tournedor 200g","Polvo","Pescado do Dia","Camarão","Lulinha / Arañita","Salmão","Tilápia","Ceviche","Tataki","Sando","Bacalhau Confitado","Fraldinha 200g","Peito de Frango"];
+    const contagem = state.estoque
+        .filter(e => itensFolhaUnica.includes(e.insumo))
+        .map(e => ({
+            insumo: e.insumo,
+            estoque_atual: e.estoque_atual || 0,
+            unidade: e.unidade,
+            categoria: e.categoria || ''
+        }));
+
+    const fechamentoData = {
+        date: todayISO,
+        producao: producao,
+        requisicoes: requisicoes,
+        temperaturas: temperaturas,
+        quebras: quebras,
+        contagem: contagem
+    };
+
+    localStorage.setItem('romerito_fechamento_data', JSON.stringify(fechamentoData));
+    
+    window.open('imprimir_fechamento.html', '_blank');
+}
