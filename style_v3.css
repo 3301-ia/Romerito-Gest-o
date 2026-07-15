@@ -1523,6 +1523,24 @@ textarea.form-control {
     justify-content: center !important;
 }
 
+/* ELEGANT TITLES GLOBAL STYLING */
+.content-header h2,
+.content-header h3,
+.content-header h4,
+.elegant-title {
+    font-family: 'Playfair Display', serif !important;
+    color: var(--accent-gold) !important;
+    font-weight: 600;
+    font-size: 24px !important;
+    letter-spacing: 0.5px;
+    margin: 0;
+    margin-bottom: 4px;
+}
+.content-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
 
 /* MOBILE OVERHAUL CSS */
 #sidebar-overlay {
