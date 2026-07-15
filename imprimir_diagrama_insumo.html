@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Vida do Insumo - Diagrama Diamante</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #f4f3ef; color: #1a1a2e; }
+        
+        .print-page { 
+            background-color: #f8f7f2; 
+            width: 29.7cm; 
+            height: 21cm; 
+            margin: 20px auto; 
+            position: relative; 
+            box-sizing: border-box; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+            border: 1px solid #1a1a2e; 
+            padding: 15px; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER & FOOTER (HTML Overlays, out of SVG path space) */
+        .doc-header {
+            border-bottom: 1px solid #d4af37;
+            padding-bottom: 10px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .doc-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            margin: 0;
+            letter-spacing: 1.5px;
+        }
+        
+        .legend-box {
+            position: absolute;
+            bottom: 20px;
+            left: 30px;
+            right: 30px;
+            border: 1px solid #ddd;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.7);
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #555;
+            z-index: 5;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+
+        .svg-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        line, path, polygon {
+            stroke: #1a1a2e;
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .line-gold { stroke: #d4af37; stroke-width: 2; }
+        
+        /* TEXT STYLES IN SVG */
+        text {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            fill: #555;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+        text.bold { font-weight: 600; fill: #1a1a2e; }
+        text.italic { font-style: italic; fill: #777; }
+        text.gold { fill: #d4af37; font-weight: 500; }
+        text.red { fill: #c94038; font-weight: bold; letter-spacing: 1px; font-size: 12px; }
+        text.title-watermark {
+            font-family: 'Playfair Display', serif;
+            font-size: 80px;
+            fill: rgba(26, 26, 46, 0.05);
+            font-weight: bold;
+            letter-spacing: 10px;
+        }
+        text.subtitle-watermark {
+            font-size: 14px;
+            fill: rgba(26, 26, 46, 0.1);
+            letter-spacing: 6px;
+        }
+
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            .print-page { 
+                margin: 0 !important; width: 100% !important; height: 100vh !important; 
+                box-shadow: none !important; border: none !important; padding: 0 15px !important;
+                page-break-inside: avoid;
+            }
+            @page { margin: 0.5cm; size: A4 landscape; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-page">
+        <div class="doc-header">
+            <h2>VIDA DO INSUMO</h2>
+            <div style="font-size: 9px; color: #888; letter-spacing: 2px; margin-top: 5px;">DIAGRAMA DE RASTREABILIDADE · SYSTÈME PRÉCIS</div>
+        </div>
+
+        <div class="svg-container">
+            <!-- PURE SVG CANVAS (1060x600 for perfect proportional layout) -->
+            <svg viewBox="0 0 1060 600" preserveAspectRatio="xMidYMid meet">
+                
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a1a2e" />
+                    </marker>
+                    <marker id="arrow-gold" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#d4af37" />
+                    </marker>
+                </defs>
+
+                <!-- WATERMARK LOGO / BACKGROUND -->
+                <image href="logo.png" x="230" y="150" width="600" height="300" opacity="0.1" preserveAspectRatio="xMidYMid meet" />
+
+                <!-- MAIN DIAMOND LINES -->
+                <!-- Top Left -->
+                <line x1="150" y1="300" x2="530" y2="40" marker-end="url(#arrow)" />
+                <!-- Bottom Left -->
+                <line x1="150" y1="300" x2="530" y2="560" marker-end="url(#arrow)" />
+                <!-- Bottom Right -->
+                <line x1="530" y1="560" x2="910" y2="300" marker-end="url(#arrow)" />
+                <!-- Top Right -->
+                <line x1="910" y1="300" x2="530" y2="40" marker-end="url(#arrow)" />
+
+                <!-- ==================== MAIN TIPS ==================== -->
+                
+                <!-- LEFT (Insumo) -->
+                <circle cx="150" cy="300" r="4" fill="#1a1a2e" />
+                <text x="135" y="304" class="bold" text-anchor="end">INSUMO</text>
+
+                <!-- BOTTOM (À Porcionar) -->
+                <!-- Triangle Pointing Up -->
+                <polygon points="530,555 525,565 535,565" fill="#1a1a2e" stroke="none" />
+                <text x="530" y="585" class="bold" text-anchor="middle">À PORCIONAR</text>
+
+                <!-- RIGHT (Estoque Geral) -->
+                <circle cx="910" cy="300" r="4" fill="#1a1a2e" />
+                <text x="925" y="296" class="bold" text-anchor="start">ESTOQUE GERAL</text>
+                <text x="925" y="310" class="bold" style="font-size: 9px; fill: #777;" text-anchor="start">(PROCESSADOS)</text>
+
+                <!-- TOP (Expedido) -->
+                <!-- Triangle Pointing Down (Red) -->
+                <polygon points="522,35 538,35 530,48" fill="#c94038" stroke="none" />
+                <text x="530" y="25" class="red" text-anchor="middle">EXPEDIDO</text>
+
+                <!-- ==================== PATH 1: UPPER LEFT (Angle -34.39) ==================== -->
+                <!-- Starts at 150,300 -> Ends at 530,40 -->
+                <circle cx="213" cy="256" r="3.5" fill="#1a1a2e" />
+                <text x="213" y="248" transform="rotate(-34.39, 213, 256)" class="italic" text-anchor="middle">Operacional</text>
+                
+                <circle cx="277" cy="213" r="3.5" fill="#1a1a2e" />
+                <text x="277" y="205" transform="rotate(-34.39, 277, 213)" text-anchor="middle">Processado</text>
+                
+                <circle cx="340" cy="170" r="3.5" fill="#1a1a2e" />
+                <text x="340" y="162" transform="rotate(-34.39, 340, 170)" text-anchor="middle">Manipulado</text>
+                
+                <circle cx="403" cy="126" r="3.5" fill="#1a1a2e" />
+                <text x="403" y="118" transform="rotate(-34.39, 403, 126)" text-anchor="middle">Refrigerado</text>
+                
+                <circle cx="467" cy="83" r="3.5" fill="#1a1a2e" />
+                <text x="467" y="75" transform="rotate(-34.39, 467, 83)" text-anchor="middle">Congelado</text>
+
+                <!-- ==================== PATH 2: LOWER LEFT (Angle 34.39) ==================== -->
+                <!-- Starts at 150,300 -> Ends at 530,560 -->
+                <circle cx="226" cy="352" r="3.5" fill="#1a1a2e" />
+                <text x="226" y="366" transform="rotate(34.39, 226, 352)" text-anchor="middle">Estoque Dinâmico</text>
+
+                <circle cx="302" cy="404" r="3.5" fill="#1a1a2e" />
+                <text x="302" y="418" transform="rotate(34.39, 302, 404)" class="italic" text-anchor="middle">Não Manipulado</text>
+
+                <circle cx="378" cy="456" r="3.5" fill="#1a1a2e" />
+                <text x="378" y="470" transform="rotate(34.39, 378, 456)" text-anchor="middle">Refrigerado</text>
+
+                <circle cx="454" cy="508" r="3.5" fill="#1a1a2e" />
+                <text x="454" y="522" transform="rotate(34.39, 454, 508)" text-anchor="middle">Congelado</text>
+
+                <!-- ==================== PATH 3: LOWER RIGHT (Angle -34.39) ==================== -->
+                <!-- Starts at 530,560 -> Ends at 910,300 -->
+                <circle cx="657" cy="473" r="3.5" fill="#d4af37" />
+                <text x="657" y="487" transform="rotate(-34.39, 657, 473)" class="gold" text-anchor="middle">Requisição Dinâmica</text>
+
+                <circle cx="783" cy="386" r="3.5" fill="#1a1a2e" />
+                <text x="783" y="400" transform="rotate(-34.39, 783, 386)" text-anchor="middle">Pré Produção</text>
+
+                <!-- ==================== PATH 4: UPPER RIGHT (Angle 34.39) ==================== -->
+                <!-- Starts at 910,300 -> Ends at 530,40 -->
+                <circle cx="834" cy="248" r="3.5" fill="#1a1a2e" />
+                <text x="834" y="240" transform="rotate(34.39, 834, 248)" class="italic" text-anchor="middle">Requisição Geral</text>
+
+                <circle cx="758" cy="196" r="3.5" fill="#1a1a2e" />
+                <text x="758" y="188" transform="rotate(34.39, 758, 196)" text-anchor="middle">Preparo</text>
+
+                <circle cx="682" cy="144" r="3.5" fill="#1a1a2e" />
+                <text x="682" y="136" transform="rotate(34.39, 682, 144)" text-anchor="middle">Processado</text>
+
+                <circle cx="606" cy="92" r="3.5" fill="#1a1a2e" />
+                <text x="606" y="84" transform="rotate(34.39, 606, 92)" class="bold" text-anchor="middle">FINALIZADO</text>
+
+            </svg>
+        </div>
+
+        <!-- LEGEND -->
+        <div class="legend-box">
+            <div class="legend-item">
+                <div style="width: 8px; height: 8px; background: #1a1a2e; border-radius: 50%;"></div> Fluxo Principal
+            </div>
+            <div class="legend-item">
+                <div style="width: 8px; height: 8px; background: #d4af37; border-radius: 50%;"></div> Requisição Dinâmica (Ouro)
+            </div>
+            <div class="legend-item">
+                <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 10px solid #c94038;"></div> Ponto de Saída - Expedido
+            </div>
+            <div class="legend-item" style="font-style: italic;">Textos cinza = Estados (não são nós físicos)</div>
+        </div>
+        <div style="position: absolute; bottom: 8px; left: 0; width: 100%; text-align: center; font-size: 8px; color: #aaa; font-weight: bold; letter-spacing: 2px;">
+            ROMERITO GASTRONOMIA · SYSTÈME PRÉCIS · CONTROLE DE RASTREABILIDADE
+        </div>
+    </div>
+</body>
+</html>
