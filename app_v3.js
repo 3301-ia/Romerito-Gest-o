@@ -3940,6 +3940,12 @@ const arquivosCozinhaList = [
         url: "imprimir_diagrama_insumo.html"
     },
     {
+        nome: "Rotas de Contagem e Requisição",
+        descricao: "Fluxo padronizado de planilhas de contagem e movimentação de insumos do Romerito.",
+        icone: "fas fa-route",
+        url: "imprimir_rotas_contagem.html"
+    },
+    {
         nome: "Contagem DiÃ¡ria Unificada (Folha Ãšnica)",
         descricao: "Planilha de contagem diÃ¡ria contendo todos os itens separados por setor em uma Ãºnica folha.",
         icone: "fas fa-file-invoice",
