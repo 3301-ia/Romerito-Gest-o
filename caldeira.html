@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E1728">
+<title>Caldeira Gourmet · Sistema de Gestão</title>
+<style>
+:root{
+  --navy:#0E1728; --navy2:#131E33; --navy3:#0A1220;
+  --gold:#D9B45B; --gold2:#F0DCA4; --gold3:#8C6F2E;
+  --txt:#E9ECF3; --dim:#8B95A9; --line:#22304A;
+  --ok:#5CA97C; --warn:#C9863F; --bad:#B45744;
+  --serif:Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--navy3)}
+body{color:var(--txt);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+
+/* ---------- CABEÇALHO / IDENTIDADE ---------- */
+header{position:relative;overflow:hidden;background:
+   radial-gradient(120% 90% at 50% -10%, rgba(217,180,91,.22) 0%, rgba(217,180,91,.06) 34%, rgba(14,23,40,0) 68%),
+   linear-gradient(160deg,#16233B 0%,#0E1728 45%,#080F1B 100%);
+  border-bottom:1px solid rgba(217,180,91,.45);text-align:center;padding:26px 18px 22px}
+header::before{content:"";position:absolute;left:50%;top:-40%;width:1px;height:180%;
+  background:linear-gradient(180deg,rgba(217,180,91,0),rgba(240,220,164,.55),rgba(217,180,91,0));transform:translateX(-50%);filter:blur(1px)}
+header::after{content:"";position:absolute;inset:9px;border:1px solid rgba(217,180,91,.28);pointer-events:none}
+.brand{position:relative;z-index:2;display:inline-flex;flex-direction:column;align-items:center;gap:7px}
+.mark{width:34px;height:34px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-family:var(--serif);font-size:12px;letter-spacing:.5px;background:rgba(217,180,91,.06)}
+h1{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:6px;color:var(--gold2);text-indent:6px}
+.sub{font-size:9.5px;letter-spacing:4.2px;text-transform:uppercase;color:var(--dim);text-indent:4px}
+.rule{width:64px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:2px 0}
+
+/* ---------- NAVEGAÇÃO ---------- */
+nav{display:flex;gap:0;overflow-x:auto;background:var(--navy2);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);
+  padding:12px 14px;font:600 10.5px/1 inherit;letter-spacing:1.3px;text-transform:uppercase;cursor:pointer}
+nav button.on{color:var(--gold);border-bottom-color:var(--gold);background:rgba(217,180,91,.05)}
+
+main{padding:16px 14px 0;max-width:1120px;margin:0 auto}
+section{display:none;animation:fade .18s ease}
+section.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+h2{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--gold2);letter-spacing:.6px;margin-bottom:4px}
+.lead{color:var(--dim);font-size:11.5px;margin-bottom:14px;max-width:70ch}
+h3{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin:20px 0 9px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+
+/* ---------- CARDS ---------- */
+.card{background:var(--navy2);border:1px solid var(--line);border-radius:5px;padding:14px;margin-bottom:12px}
+.grid{display:grid;gap:9px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.kpi{background:linear-gradient(180deg,#16213A,#121C2E);border:1px solid var(--line);border-left:2px solid var(--gold);border-radius:4px;padding:11px 13px}
+.kpi .l{font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--dim)}
+.kpi .v{font-family:var(--serif);font-size:21px;color:var(--gold2);margin-top:4px;line-height:1.1}
+.kpi .s{font-size:10px;color:var(--dim);margin-top:3px}
+
+/* ---------- TABELAS ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:520px}
+th{text-align:left;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--gold);
+  padding:8px 7px;border-bottom:1px solid rgba(217,180,91,.5);white-space:nowrap;font-weight:600}
+td{padding:7px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:rgba(217,180,91,.035)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--gold2);letter-spacing:.4px}
+.dim{color:var(--dim)}
+.r{text-align:right}
+
+/* ---------- FORMULÁRIO ---------- */
+label{display:block;font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+input,select{width:100%;background:var(--navy3);border:1px solid var(--line);color:var(--txt);
+  padding:8px;border-radius:4px;font:13px inherit}
+input:focus,select:focus{outline:0;border-color:var(--gold);background:#0C1526}
+input[type=number]{text-align:right}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.row>div{flex:1 1 120px;min-width:104px}
+.row>div.auto{flex:0 0 auto;min-width:0}
+.btn{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#101A2B;border:0;border-radius:4px;
+  padding:9px 15px;font:700 10.5px inherit;letter-spacing:1.1px;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.ghost{background:none;border:1px solid var(--line);color:var(--txt);border-radius:4px;padding:7px 11px;
+  font:600 10px inherit;letter-spacing:.9px;text-transform:uppercase;cursor:pointer}
+.ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ---------- ESTADOS ---------- */
+.pill{display:inline-block;font-size:9.5px;letter-spacing:.7px;text-transform:uppercase;padding:2px 8px;border-radius:9px;
+  background:rgba(217,180,91,.14);color:var(--gold)}
+.pill.ok{background:rgba(92,169,124,.16);color:#7FC79E}
+.pill.warn{background:rgba(201,134,63,.16);color:#DDA46A}
+.pill.bad{background:rgba(180,87,68,.18);color:#E09680}
+.note{border-left:2px solid var(--gold3);background:rgba(217,180,91,.05);padding:10px 12px;border-radius:0 4px 4px 0;
+  font-size:12px;color:#CDD4E2;margin-top:11px}
+.note.bad{border-left-color:var(--bad);background:rgba(180,87,68,.07)}
+.note.ok{border-left-color:var(--ok);background:rgba(92,169,124,.07)}
+.bar{height:15px;background:var(--navy3);border-radius:3px;overflow:hidden;flex:1}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold),var(--gold2))}
+.brow{display:flex;align-items:center;gap:9px;margin:4px 0;font-size:11.5px}
+.brow span:first-child{width:46px;color:var(--dim);font-family:ui-monospace,monospace}
+.brow span:last-child{width:66px;text-align:right;font-family:ui-monospace,monospace;color:var(--gold2)}
+
+footer{margin-top:22px;padding:20px 14px 30px;text-align:center;border-top:1px solid rgba(217,180,91,.22)}
+.flogos{display:flex;justify-content:center;align-items:center;gap:22px;opacity:.85;flex-wrap:wrap}
+.fw{font-family:var(--serif);font-size:12px;letter-spacing:3.4px;color:var(--gold)}
+.fw small{display:block;font-size:7.5px;letter-spacing:2.6px;color:var(--dim);margin-top:3px}
+.sep{width:1px;height:22px;background:var(--line)}
+footer p{font-size:8.5px;letter-spacing:2.4px;text-transform:uppercase;color:#5B657A;margin-top:13px;line-height:1.9}
+@media(max-width:420px){h1{font-size:19px;letter-spacing:4px}.kpi .v{font-size:18px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="mark">CG</div>
+    <h1>CALDEIRA GOURMET</h1>
+    <div class="rule"></div>
+    <div class="sub">Minas Tênis Clube II &middot; Motor de Gestão</div>
+  </div>
+</header>
+
+<nav id="nav">
+  <button class="on" data-t="painel">Painel</button>
+  <button data-t="itens">Itens</button>
+  <button data-t="fichas">Fichas</button>
+  <button data-t="fritura">Fritura</button>
+  <button data-t="canal">Canal</button>
+  <button data-t="requisicao">Requisição</button>
+  <button data-t="expedicao">Expedição</button>
+  <button data-t="sobra">Sobra</button>
+</nav>
+
+<main>
+
+<!-- ================= PAINEL ================= -->
+<section id="painel" class="on">
+  <h2>Painel</h2>
+  <p class="lead">O consumo imediato não é medido, mas é expedido e já virou caixa. O ponto de expedição é onde o dado nasce.</p>
+  <div class="grid g3" id="kpis"></div>
+  <h3>Rateio da carga por porção</h3>
+  <div class="card" id="curva"></div>
+  <h3>Leitura do momento</h3>
+  <div id="leituras"></div>
+</section>
+
+<!-- ================= ITENS ================= -->
+<section id="itens">
+  <h2>Itens e assinatura</h2>
+  <p class="lead">Código é a chave de rastreabilidade. A assinatura de seis caracteres identifica o item pela natureza, não pelo nome: dois cadastros iguais são recusados na hora.</p>
+  <div class="row" style="margin-bottom:12px">
+    <div><label>Item</label><input id="i-nome" placeholder="Bolinho de mandioca"></div>
+    <div><label>Família</label><select id="i-fam">
+      <option value="FRG">Fritura</option><option value="PDS">Pão e salgado</option>
+      <option value="PRT">Porção</option><option value="SLD">Salada</option>
+      <option value="SOB">Sobremesa</option><option value="INS">Insumo</option>
+      <option value="EMB">Embalagem</option></select></div>
+    <div><label>Unidade</label><select id="i-un">
+      <option value="un">un</option><option value="g">g</option><option value="kg">kg</option>
+      <option value="L">L</option><option value="ml">ml</option></select></div>
+    <div class="auto"><button class="btn" id="i-add">Gerar</button></div>
+  </div>
+  <div class="card scroll"><table id="t-itens"></table></div>
+</section>
+
+<!-- ================= FICHAS ================= -->
+<section id="fichas">
+  <h2>Fichas técnicas</h2>
+  <p class="lead">Gramatura crua e gramatura limpa, fator de correção e absorção declarada. Qualquer mudança de composição fecha uma versão nova, e a venda antiga mantém o custo que pagou.</p>
+  <div class="row" style="margin-bottom:10px">
+    <div><label>Prato</label><input id="f-nome" placeholder="Filé com fritas"></div>
+    <div><label>Porções</label><input id="f-rend" type="number" value="1" min="1"></div>
+    <div><label>Absorção (g)</label><input id="f-abs" type="number" value="0" step="1"></div>
+  </div>
+  <div class="row" style="margin-bottom:10px">
+    <div><label>Componente</label><select id="f-comp"></select></div>
+    <div><label>Qtd crua</label><input id="f-qtd" type="number" value="100"></div>
+    <div><label>Fator correção</label><input id="f-fc" type="number" value="1" step="0.01"></div>
+    <div><label>Preço unit.</label><input id="f-pr" type="number" value="0" step="0.01"></div>
+    <div class="auto"><button class="ghost" id="f-add">+ Componente</button></div>
+  </div>
+  <div class="card" id="f-lista"></div>
+  <div class="row" style="margin:10px 0"><div class="auto"><button class="btn" id="f-save">Fechar versão</button></div></div>
+  <div class="card scroll"><table id="t-fichas"></table></div>
+</section>
+
+<!-- ================= FRITURA ================= -->
+<section id="fritura">
+  <h2>Fritura</h2>
+  <p class="lead">Custo do ciclo dividido pelo volume do ciclo. A troca é por estado e por carga, não por dia da semana. Volume concentrado dilui; volume dividido encarece cada porção.</p>
+  <div class="row">
+    <div><label>Litragem por cuba</label><input id="c-lit" type="number" value="12" step="0.5"></div>
+    <div><label>Unidades por cuba</label><input id="c-un" type="number" value="12"></div>
+    <div><label>Custo da unidade</label><input id="c-pr" type="number" value="10.80" step="0.01"></div>
+    <div><label>Cubas em uso</label><input id="c-cub" type="number" value="2" min="1"></div>
+    <div><label>Porções na semana</label><input id="c-por" type="number" value="80"></div>
+    <div><label>Ciclos no mês</label><input id="c-cic" type="number" value="4.5" step="0.5"></div>
+  </div>
+  <div class="grid g3" id="c-kpi" style="margin-top:12px"></div>
+  <div id="c-note"></div>
+  <h3>Custo por porção conforme o volume</h3>
+  <div class="card scroll"><table id="t-cuba"></table></div>
+</section>
+
+<!-- ================= CANAL ================= -->
+<section id="canal">
+  <h2>Canal</h2>
+  <p class="lead">A tampa é o medidor do canal. Consumo imediato sai sem tampa, viagem sai com tampa. Cada registro guarda ponto, porções e tampas do período.</p>
+  <div class="row" style="margin-bottom:10px">
+    <div><label>Ponto</label><select id="k-ponto">
+      <option value="S">Salão</option><option value="P">Piscina</option><option value="Q">Quiosque</option>
+      <option value="PT">Peteca</option><option value="SN">Sinuca</option></select></div>
+    <div><label>Porções</label><input id="k-por" type="number" value="0"></div>
+    <div><label>Tampas usadas</label><input id="k-tam" type="number" value="0"></div>
+    <div><label>Barcas usadas</label><input id="k-bar" type="number" value="0"></div>
+    <div class="auto"><button class="btn" id="k-add">Registrar</button></div>
+  </div>
+  <div class="grid g3" id="k-kpi"></div>
+  <div class="card scroll" style="margin-top:12px"><table id="t-canal"></table></div>
+</section>
+
+<!-- ================= REQUISIÇÃO ================= -->
+<section id="requisicao">
+  <h2>Requisição</h2>
+  <p class="lead">Conferência física contra sistêmica. A divergência é o primeiro dado do dia: o que o sistema diz, o que a prateleira diz e o que a conta sugere.</p>
+  <div class="row" style="margin-bottom:10px">
+    <div><label>Prazo de entrega (dias)</label><input id="r-pz" type="number" value="2"></div>
+    <div><label>Segurança (dias)</label><input id="r-sg" type="number" value="2"></div>
+    <div class="auto"><button class="btn" id="r-calc">Calcular</button></div>
+  </div>
+  <div class="card scroll"><table id="t-req"></table></div>
+</section>
+
+<!-- ================= EXPEDIÇÃO ================= -->
+<section id="expedicao">
+  <h2>Expedição lacrada</h2>
+  <p class="lead">Emitir, lacrar, confirmar. Três atos, três horários, um registro. O que não sai para ninguém fica em linha aberta, sem acusação e sem adjetivo.</p>
+  <div class="row" style="margin-bottom:10px">
+    <div><label>Ticket MIP</label><input id="e-num" placeholder="2796"></div>
+    <div><label>Ponto</label><select id="e-ponto">
+      <option value="S">Salão</option><option value="P">Piscina</option><option value="Q">Quiosque</option>
+      <option value="PT">Peteca</option><option value="SN">Sinuca</option></select></div>
+    <div><label>Destino</label><input id="e-dest" placeholder="mesa 12"></div>
+    <div><label>Lacre</label><input id="e-lacre" placeholder="L-0042"></div>
+    <div class="auto"><button class="btn" id="e-add">Emitir</button></div>
+  </div>
+  <div class="grid g2" id="e-kpi" style="margin-bottom:12px"></div>
+  <div class="card scroll"><table id="t-exp"></table></div>
+</section>
+
+<!-- ================= SOBRA ================= -->
+<section id="sobra">
+  <h2>Sobra e destino</h2>
+  <p class="lead">Três balanças: buffet no fim do dia, café da manhã e a batata que fica na fritadeira. A sobra constante mostra que se produz antes da demanda.</p>
+  <div class="row" style="margin-bottom:10px">
+    <div><label>Origem</label><select id="s-orig">
+      <option>Buffet</option><option>Café</option><option>Fritadeira</option><option>Lanchonete</option></select></div>
+    <div><label>Peso (g)</label><input id="s-pes" type="number" value="0"></div>
+    <div><label>Destino</label><select id="s-dest">
+      <option>Funcionário</option><option>Descarte</option><option>Reaproveitamento</option></select></div>
+    <div class="auto"><button class="btn" id="s-add">Registrar</button></div>
+  </div>
+  <div class="grid g3" id="s-kpi"></div>
+  <div class="card scroll" style="margin-top:12px"><table id="t-sobra"></table></div>
+  <div class="row" style="margin-top:12px">
+    <div class="auto"><button class="ghost" id="exp">Exportar dados</button></div>
+    <div class="auto"><button class="ghost" id="rst">Zerar movimento</button></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="flogos">
+    <div class="fw">CALDEIRA<small>GOURMET</small></div>
+    <div class="sep"></div>
+    <div class="fw">MTC<small>UNIDADE II</small></div>
+  </div>
+  <p>Registro subproduto da execução<br>Emitir &middot; Lacrar &middot; Confirmar</p>
+</footer>
+
+<script>
+/* ============================================================
+   CALDEIRA GOURMET · motor de gestão
+   Estado local, sem servidor. Chave: caldeira_gourmet_v2
+   ============================================================ */
+const KEY = 'caldeira_gourmet_v2';
+const AL = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+const SEED = [
+  ['CG-FRG-001','47K4SM','FRG','Pão de queijo','un'],
+  ['CG-FRG-002','FL9WQQ','FRG','Pastel','un'],
+  ['CG-FRG-003','DDTMRM','FRG','Quibe','un'],
+  ['CG-FRG-004','HPQEPE','FRG','Torresmo','g'],
+  ['CG-FRG-005','6PPJNV','FRG','Batata frita','g'],
+  ['CG-FRG-006','JGJBT2','FRG','Filé à milanesa','g'],
+  ['CG-FRG-007','SKF2S2','FRG','Frango à milanesa','g'],
+  ['CG-FRG-008','LUM6HG','FRG','Peixe empanado','g'],
+  ['CG-PDS-001','HEXJBT','PDS','Empada','un'],
+  ['CG-PDS-002','SAMYGR','PDS','Esfirra','un'],
+  ['CG-PDS-003','N3KYHA','PDS','Enrolado','un'],
+  ['CG-PDS-004','JKS8BM','PDS','Tortinha','un'],
+  ['CG-PDS-005','42T56S','PDS','Biscoito de queijo','un'],
+  ['CG-PRT-001','XTS6TL','PRT','Filé com fritas','g'],
+  ['CG-PRT-002','LDSUYC','PRT','Frango com fritas','g'],
+  ['CG-PRT-003','JTRVQA','PRT','Peixe com fritas','g'],
+  ['CG-PRT-004','K4H8P2','PRT','Hambúrguer artesanal','un'],
+  ['CG-PRT-005','NTLTQ4','PRT','X-Burger','un'],
+  ['CG-PRT-006','JH258Q','PRT','X-Egg Bacon','un'],
+  ['CG-PRT-007','SDRCMK','PRT','Espeto de carne','un'],
+  ['CG-PRT-008','ZAMAQF','PRT','Espeto de frango','un'],
+  ['CG-PRT-009','5WX427','PRT','Carne de panela','g'],
+  ['CG-PRT-010','DEAFNB','PRT','Moela','g'],
+  ['CG-PRT-011','KXGD5B','PRT','Tulipinha','g'],
+  ['CG-SLD-001','7GDN53','SLD','Sanduíche natural','un'],
+  ['CG-SOB-001','6QBYKE','SOB','Salada de fruta','un'],
+  ['CG-INS-001','77RLAQ','INS','Óleo de fritura','L'],
+  ['CG-EMB-001','LJE8TK','EMB','Barca grande','un'],
+  ['CG-EMB-002','SWLYCY','EMB','Barca pequena','un'],
+  ['CG-EMB-003','EFZBBV','EMB','Tampa grande','un'],
+  ['CG-EMB-004','B7Y5QY','EMB','Tampa pequena','un']
+];
+
+const FAMS = {FRG:'Fritura',PDS:'Pão e salgado',PRT:'Porção',SLD:'Salada',SOB:'Sobremesa',INS:'Insumo',EMB:'Embalagem'};
+const PONTOS = {S:'Salão',P:'Piscina',Q:'Quiosque',PT:'Peteca',SN:'Sinuca'};
+
+/* ---------- estado ---------- */
+let db = null;
+try { db = JSON.parse(localStorage.getItem(KEY)); } catch(e) { db = null; }
+if (!db || !db.itens) {
+  db = {
+    itens: SEED.map(function(r){ return {c:r[0], a:r[1], f:r[2], n:r[3], u:r[4], fc:1, pr:0, min:0, saldo:0, sist:0, cons:0}; }),
+    fichas: [], rascunho: [],
+    cuba: {lit:12, un:12, pr:10.8, cub:2, por:80, cic:4.5},
+    canal: [], pedidos: [], sobras: [],
+    emb: {barcaG:2.8, barcaP:2.2, tampaG:1.4, tampaP:1.1}
+  };
+}
+const save = () => localStorage.setItem(KEY, JSON.stringify(db));
+
+/* ---------- utilidades ---------- */
+const nz = v => (isFinite(v) ? v : 0);
+const brl = v => 'R$ ' + nz(v).toFixed(2).replace('.', ',');
+const num = v => nz(v).toLocaleString('pt-BR');
+const pct = v => (nz(v)*100).toFixed(1).replace('.', ',') + '%';
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/\s+/g,' ');
+const sha = s => crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+function b32(bytes, n) {
+  let v = 0n;
+  for (let i = 0; i < 8; i++) v = (v << 8n) | BigInt(bytes[i]);
+  let out = '';
+  for (let j = 0; j < n; j++) { out += AL[Number(v % 32n)]; v /= 32n; }
+  return out;
+}
+const kpi = (l,v,s) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s||''}</div></div>`;
+
+/* ---------- navegação ---------- */
+document.querySelectorAll('#nav button').forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('main section').forEach(s => s.classList.toggle('on', s.id === b.dataset.t));
+    window.scrollTo({top:0, behavior:'smooth'});
+  };
+});
+
+/* ============================================================
+   PAINEL
+   ============================================================ */
+function rateio() {
+  const c = db.cuba, carga = nz(c.un) * nz(c.pr);
+  const cubas = Math.max(1, nz(c.cub) || 1), porc = nz(c.por) || 0;
+  const porCuba = porc / cubas;
+  return {carga, cubas, porc, porCuba, r: porCuba ? carga / porCuba : 0};
+}
+function renderPainel() {
+  const q = rateio();
+  const semConf = db.pedidos.filter(p => !p.conf).length;
+  const tempos = db.pedidos.filter(p => p.lac && p.conf).map(p => (new Date(p.conf) - new Date(p.lac)) / 60000);
+  const med = tempos.length ? Math.round(tempos.reduce((a,b) => a+b, 0) / tempos.length) : 0;
+  const por = db.canal.reduce((a,k) => a + nz(k.por), 0);
+  const tam = db.canal.reduce((a,k) => a + nz(k.tam), 0);
+  const sobra = db.sobras.reduce((a,s) => a + nz(s.pes), 0);
+
+  document.getElementById('kpis').innerHTML =
+    kpi('Itens', db.itens.length, 'código e assinatura') +
+    kpi('Carga por cuba', brl(q.carga), nz(db.cuba.un) + ' un · ' + num(nz(db.cuba.lit)) + ' L · troca completa ' + brl(q.carga * q.cubas)) +
+    kpi('Rateio por porção', brl(q.r), num(q.porc) + ' porções na semana') +
+    kpi('Proporção viagem', por ? pct(tam/por) : '—', tam + ' tampas em ' + por + ' porções') +
+    kpi('Linha aberta', semConf, 'emitido sem confirmação') +
+    kpi('Expedição média', med ? med + ' min' : '—', 'do lacre à confirmação') +
+    kpi('Sobra registrada', num(sobra) + ' g', db.sobras.length + ' registros');
+
+  const vols = [60,80,100,120,160,200,260,325,400];
+  const vals = vols.map(v => v ? q.carga / (v / q.cubas) : 0);
+  const max = Math.max.apply(null, vals) || 1;
+  document.getElementById('curva').innerHTML =
+    `<div class="dim" style="font-size:11px;margin-bottom:8px">porções na semana &middot; ${q.cubas} cuba(s) &middot; carga de ${brl(q.carga)}</div>` +
+    vols.map((v,i) => `<div class="brow"><span>${v}</span><div class="bar"><i style="width:${Math.round(vals[i]/max*100)}%"></i></div><span>${brl(vals[i])}</span></div>`).join('');
+
+  let leituras = '';
+  if (q.r > 0.6) leituras += `<div class="note bad"><b>Diluição crítica.</b> Com ${num(q.porc)} porções na semana, o ciclo carrega ${brl(q.r)} por porção só na troca de óleo. A alavanca é regime: cuba única fora do pico, ciclo mais longo com filtragem e troca por estado.</div>`;
+  else if (q.r > 0.35) leituras += `<div class="note"><b>Zona de atenção.</b> Rateio de ${brl(q.r)} por porção. Concentrar volume reduz sem tocar em preço.</div>`;
+  else leituras += `<div class="note ok"><b>Diluição saudável.</b> Rateio de ${brl(q.r)} por porção.</div>`;
+
+  if (semConf) leituras += `<div class="note"><b>${semConf} pedido(s) sem confirmação.</b> Ticket emitido, lacre aplicado e chegada não registrada. É a linha que fecha o dia.</div>`;
+  if (por && tam/por > 0.5) leituras += `<div class="note"><b>Maioria viaja.</b> ${pct(tam/por)} das porções saíram com tampa, então o canal de viagem é o principal e o CMV precisa separar os dois.</div>`;
+  document.getElementById('leituras').innerHTML = leituras;
+}
+
+/* ============================================================
+   ITENS
+   ============================================================ */
+function renderItens() {
+  let h = '<thead><tr><th>Código</th><th>Item</th><th>Família</th><th>Un</th><th class="r">FC</th><th class="r">Preço</th><th>Assinatura</th></tr></thead><tbody>';
+  db.itens.forEach(function(it, i) {
+    h += `<tr>
+      <td class="mono">${it.c}</td>
+      <td>${esc(it.n)}</td>
+      <td class="dim">${FAMS[it.f] || it.f}</td>
+      <td class="dim">${it.u}</td>
+      <td class="r"><input style="width:62px;padding:5px" type="number" step="0.01" value="${nz(it.fc)||1}" onchange="setCampo(${i},'fc',this.value)"></td>
+      <td class="r"><input style="width:82px;padding:5px" type="number" step="0.01" value="${nz(it.pr)}" onchange="setCampo(${i},'pr',this.value)"></td>
+      <td class="mono">${it.a}</td></tr>`;
+  });
+  document.getElementById('t-itens').innerHTML = h + '</tbody>';
+
+  const sel = document.getElementById('f-comp');
+  const atual = sel.value;
+  sel.innerHTML = db.itens.filter(x => x.f !== 'EMB')
+    .map(x => `<option value="${x.c}">${x.c} · ${esc(x.n)}</option>`).join('');
+  if (atual) sel.value = atual;
+}
+window.setCampo = function(i, k, v) {
+  db.itens[i][k] = parseFloat(v) || (k === 'fc' ? 1 : 0);
+  save(); renderPainel(); renderReq();
+};
+
+document.getElementById('i-add').onclick = function() {
+  const nome = document.getElementById('i-nome').value.trim();
+  if (!nome) return;
+  const fam = document.getElementById('i-fam').value, un = document.getElementById('i-un').value;
+  sha(fam + '|' + norm(nome) + '|' + un).then(function(d) {
+    const assin = b32(new Uint8Array(d), 6);
+    const dup = db.itens.filter(x => x.a === assin);
+    if (dup.length) { alert('Assinatura idêntica a ' + dup[0].c + ' (' + dup[0].n + '). Duplicata ou apelido.'); return; }
+    const seq = db.itens.filter(x => x.f === fam).length + 1;
+    db.itens.push({c:'CG-'+fam+'-'+String(seq).padStart(3,'0'), a:assin, f:fam, n:nome, u:un, fc:1, pr:0, min:0, saldo:0, sist:0, cons:0});
+    save(); renderItens(); renderPainel(); renderReq();
+    document.getElementById('i-nome').value = '';
+  });
+};
+
+/* ============================================================
+   FICHAS
+   ============================================================ */
+document.getElementById('f-add').onclick = function() {
+  const c = document.getElementById('f-comp').value;
+  db.rascunho.push({
+    c: c,
+    q: parseFloat(document.getElementById('f-qtd').value) || 0,
+    fc: parseFloat(document.getElementById('f-fc').value) || 1,
+    pr: parseFloat(document.getElementById('f-pr').value) || 0
+  });
+  save(); renderRascunho();
+};
+function renderRascunho() {
+  const box = document.getElementById('f-lista');
+  if (!db.rascunho.length) { box.innerHTML = '<span class="dim" style="font-size:12px">Nenhum componente adicionado.</span>'; return; }
+  let tot = 0;
+  let h = '<div class="scroll"><table style="min-width:440px"><thead><tr><th>Componente</th><th class="r">Qtd</th><th class="r">FC</th><th class="r">Preço</th><th class="r">Custo</th><th></th></tr></thead><tbody>';
+  db.rascunho.forEach(function(l, i) {
+    const it = db.itens.find(x => x.c === l.c) || {u:'', n:l.c};
+    const ct = nz(l.q) * nz(l.pr);
+    tot += ct;
+    h += `<tr><td class="mono">${l.c} <span class="dim">${esc(it.n).slice(0,22)}</span></td>
+      <td class="r">${num(l.q)} ${it.u}</td><td class="r">${l.fc}</td>
+      <td class="r">${brl(l.pr)}</td><td class="r mono">${brl(ct)}</td>
+      <td><button class="ghost" style="padding:3px 8px" onclick="delRascunho(${i})">×</button></td></tr>`;
+  });
+  h += `<tr><td colspan="4" class="r dim">Total do preparo</td><td class="r mono">${brl(tot)}</td><td></td></tr></tbody></table></div>`;
+  box.innerHTML = h;
+}
+window.delRascunho = i => { db.rascunho.splice(i,1); save(); renderRascunho(); };
+
+document.getElementById('f-save').onclick = function() {
+  const nome = document.getElementById('f-nome').value.trim();
+  if (!nome || !db.rascunho.length) { alert('Informe o prato e ao menos um componente.'); return; }
+  const base = db.rascunho.map(l => `${l.c}:${l.q}:${l.fc}`).join(';');
+  sha(base).then(function(d) {
+    const versao = Array.from(new Uint8Array(d)).slice(0,4)
+      .map(b => ('0' + b.toString(16)).slice(-2)).join('').toUpperCase();
+    const rend = parseFloat(document.getElementById('f-rend').value) || 1;
+    const abs = parseFloat(document.getElementById('f-abs').value) || 0;
+    const custo = db.rascunho.reduce((a,l) => a + nz(l.q) * nz(l.pr), 0);
+    db.fichas.push({nome, versao, rend, abs, custo, comp: db.rascunho.slice(), base});
+    db.rascunho = [];
+    save(); renderRascunho(); renderFichas(); renderPainel();
+    document.getElementById('f-nome').value = '';
+  });
+};
+function renderFichas() {
+  let h = '<thead><tr><th>Prato</th><th>Versão</th><th class="r">Comp.</th><th class="r">Porções</th><th class="r">Absorção</th><th class="r">Custo</th><th class="r">Por porção</th></tr></thead><tbody>';
+  db.fichas.slice().reverse().forEach(function(f) {
+    h += `<tr><td>${esc(f.nome)}</td><td class="mono">${f.versao}</td>
+      <td class="r">${f.comp.length}</td><td class="r">${f.rend}</td>
+      <td class="r">${f.abs} g</td><td class="r">${brl(f.custo)}</td>
+      <td class="r mono">${brl(f.custo / (f.rend || 1))}</td></tr>`;
+  });
+  document.getElementById('t-fichas').innerHTML = h + '</tbody>';
+}
+
+/* ============================================================
+   FRITURA
+   ============================================================ */
+['c-lit','c-un','c-pr','c-cub','c-por','c-cic'].forEach(function(id) {
+  const el = document.getElementById(id);
+  el.onchange = function() {
+    db.cuba = {
+      lit: parseFloat(document.getElementById('c-lit').value) || 0,
+      un: parseFloat(document.getElementById('c-un').value) || 0,
+      pr: parseFloat(document.getElementById('c-pr').value) || 0,
+      cub: parseFloat(document.getElementById('c-cub').value) || 1,
+      por: parseFloat(document.getElementById('c-por').value) || 0,
+      cic: parseFloat(document.getElementById('c-cic').value) || 0
+    };
+    save(); renderFritura(); renderPainel();
+  };
+});
+function renderFritura() {
+  const c = db.cuba, q = rateio();
+  const cicloMes = q.carga * nz(c.cic);
+  document.getElementById('c-kpi').innerHTML =
+    kpi('Carga por cuba', brl(q.carga), nz(c.un) + ' un de ' + num(nz(c.lit)) + ' L') +
+    kpi('Troca completa', brl(q.carga * q.cubas), q.cubas + ' cuba(s) por ciclo') +
+    kpi('Carga no mês', brl(cicloMes * q.cubas), nz(c.cic) + ' ciclos') +
+    kpi('Porções por cuba', num(q.porCuba), 'na semana') +
+    kpi('Rateio por porção', brl(q.r), 'custo fixo do ciclo') +
+    kpi('Regime sugerido', q.r > 0.6 ? 'Cuba única' : (q.r > 0.35 ? 'Concentrar' : 'Manter'), 'pelo volume atual') +
+    kpi('Litros por semana', num(nz(c.un) * nz(c.lit) / (nz(c.cic) || 1)), 'consumo médio');
+
+  let nota;
+  if (q.r > 0.6) nota = `<div class="note bad"><b>O ciclo não fecha pelo volume.</b> Cada porção carrega ${brl(q.r)} de troca. Com ${num(q.porc)} porções na semana divididas em ${q.cubas} cubas, cada cuba trabalha ${num(q.porCuba)} porções. Concentrar em uma cuba fora do pico corta o rateio pela metade e reduz a degradação do óleo parado.</div>`;
+  else if (q.r > 0.35) nota = `<div class="note"><b>Zona de atenção.</b> Rateio de ${brl(q.r)} por porção. Vale revisar intervalo de troca e concentrar carga.</div>`;
+  else nota = `<div class="note ok"><b>Diluição saudável.</b> ${brl(q.r)} por porção com o volume atual.</div>`;
+  nota += `<div class="note"><b>Troca por estado.</b> O critério é visual e de contagem de carga, não o dia da semana. Ciclo longo sem filtragem não economiza, transfere custo para o sabor.</div>`;
+  document.getElementById('c-note').innerHTML = nota;
+
+  let h = '<thead><tr><th class="r">Porções/semana</th><th class="r">Por cuba</th><th class="r">Rateio</th><th>Status</th></tr></thead><tbody>';
+  [60,80,100,120,160,200,260,325,400].forEach(function(v) {
+    const pc = v / q.cubas, r = pc ? q.carga / pc : 0;
+    const st = r > 0.6 ? '<span class="pill bad">crítico</span>' : (r > 0.35 ? '<span class="pill warn">atenção</span>' : '<span class="pill ok">saudável</span>');
+    h += `<tr><td class="r">${v}</td><td class="r">${num(pc)}</td><td class="r mono">${brl(r)}</td><td>${st}</td></tr>`;
+  });
+  document.getElementById('t-cuba').innerHTML = h + '</tbody>';
+}
+
+/* ============================================================
+   CANAL
+   ============================================================ */
+document.getElementById('k-add').onclick = function() {
+  const por = parseFloat(document.getElementById('k-por').value) || 0;
+  const tam = parseFloat(document.getElementById('k-tam').value) || 0;
+  const bar = parseFloat(document.getElementById('k-bar').value) || 0;
+  if (!por && !tam) return;
+  db.canal.push({ponto: document.getElementById('k-ponto').value, por, tam, bar, ts: new Date().toISOString()});
+  save(); renderCanal(); renderPainel();
+  ['k-por','k-tam','k-bar'].forEach(id => document.getElementById(id).value = 0);
+};
+function renderCanal() {
+  const por = db.canal.reduce((a,k) => a + nz(k.por), 0);
+  const tam = db.canal.reduce((a,k) => a + nz(k.tam), 0);
+  const bar = db.canal.reduce((a,k) => a + nz(k.bar), 0);
+  const e = db.emb;
+  const custoKit = nz(e.barcaG) + nz(e.tampaG);
+  const custoViagem = tam * nz(e.tampaG);
+
+  document.getElementById('k-kpi').innerHTML =
+    kpi('Porções registradas', num(por), db.canal.length + ' lançamentos') +
+    kpi('Proporção viagem', por ? pct(tam/por) : '—', tam + ' tampas') +
+    kpi('Tampa por porção', por ? (tam/por).toFixed(2).replace('.',',') : '—', 'medidor de canal') +
+    kpi('Kit barca + tampa', brl(custoKit), pct(nz(e.tampaG)/(custoKit||1)) + ' é tampa') +
+    kpi('Embalagem de viagem', brl(custoViagem), 'no período lançado');
+
+  let h = '<thead><tr><th>Ponto</th><th class="r">Porções</th><th class="r">Tampas</th><th class="r">Viagem</th><th class="r">Barcas</th></tr></thead><tbody>';
+  Object.keys(PONTOS).forEach(function(p) {
+    const l = db.canal.filter(k => k.ponto === p);
+    if (!l.length) return;
+    const lp = l.reduce((a,k) => a + nz(k.por), 0);
+    const lt = l.reduce((a,k) => a + nz(k.tam), 0);
+    const lb = l.reduce((a,k) => a + nz(k.bar), 0);
+    h += `<tr><td>${PONTOS[p]}</td><td class="r">${num(lp)}</td><td class="r">${num(lt)}</td>
+      <td class="r">${lp ? pct(lt/lp) : '—'}</td><td class="r">${num(lb)}</td></tr>`;
+  });
+  h += `<tr><td class="dim">Total</td><td class="r">${num(por)}</td><td class="r">${num(tam)}</td>
+    <td class="r">${por ? pct(tam/por) : '—'}</td><td class="r">${num(bar)}</td></tr>`;
+  document.getElementById('t-canal').innerHTML = h + '</tbody>';
+}
+
+/* ============================================================
+   REQUISIÇÃO
+   ============================================================ */
+function renderReq() {
+  const pz = parseFloat(document.getElementById('r-pz').value) || 0;
+  const sg = parseFloat(document.getElementById('r-sg').value) || 0;
+  let h = '<thead><tr><th>Código</th><th>Item</th><th class="r">Consumo/dia</th><th class="r">Físico</th><th class="r">Sistêmico</th><th class="r">Diverg.</th><th class="r">Sugerido</th></tr></thead><tbody>';
+  db.itens.filter(x => x.f === 'INS' || x.f === 'PDS' || x.f === 'FRG').forEach(function(it) {
+    const i = db.itens.indexOf(it);
+    const sug = Math.max(0, nz(it.cons) * (pz + sg) + nz(it.min) - nz(it.saldo));
+    const dv = nz(it.saldo) - nz(it.sist);
+    h += `<tr>
+      <td class="mono">${it.c}</td><td>${esc(it.n)}</td>
+      <td class="r"><input style="width:70px;padding:5px" type="number" value="${nz(it.cons)}" onchange="setReq(${i},'cons',this.value)"></td>
+      <td class="r"><input style="width:70px;padding:5px" type="number" value="${nz(it.saldo)}" onchange="setReq(${i},'saldo',this.value)"></td>
+      <td class="r"><input style="width:70px;padding:5px" type="number" value="${nz(it.sist)}" onchange="setReq(${i},'sist',this.value)"></td>
+      <td class="r">${dv ? `<span class="pill ${Math.abs(dv) > 0 ? 'warn' : 'ok'}">${dv > 0 ? '+' : ''}${num(dv)}</span>` : '<span class="dim">—</span>'}</td>
+      <td class="r mono">${sug ? num(Math.round(sug*100)/100) : '—'}</td></tr>`;
+  });
+  document.getElementById('t-req').innerHTML = h + '</tbody>';
+}
+window.setReq = function(i, k, v) { db.itens[i][k] = parseFloat(v) || 0; save(); renderReq(); };
+document.getElementById('r-calc').onclick = renderReq;
+document.getElementById('r-pz').onchange = renderReq;
+document.getElementById('r-sg').onchange = renderReq;
+
+/* ============================================================
+   EXPEDIÇÃO
+   ============================================================ */
+document.getElementById('e-add').onclick = function() {
+  const t = document.getElementById('e-num').value.trim();
+  if (!t) { alert('Informe o número do ticket.'); return; }
+  db.pedidos.push({
+    t: t,
+    ponto: document.getElementById('e-ponto').value,
+    dest: document.getElementById('e-dest').value.trim(),
+    lacre: document.getElementById('e-lacre').value.trim(),
+    emit: new Date().toISOString(), lac: null, conf: null
+  });
+  save(); renderExp(); renderPainel();
+  document.getElementById('e-num').value = '';
+  document.getElementById('e-lacre').value = '';
+};
+const hhmm = iso => iso ? new Date(iso).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) : '—';
+function renderExp() {
+  let h = '<thead><tr><th>Ticket</th><th>Ponto</th><th>Destino</th><th>Lacre</th><th>Emissão</th><th>Lacre</th><th>Confirmação</th><th class="r">Expedição</th><th></th></tr></thead><tbody>';
+  db.pedidos.slice().reverse().forEach(function(p) {
+    const i = db.pedidos.indexOf(p);
+    const exp = (p.lac && p.conf) ? Math.round((new Date(p.conf) - new Date(p.lac)) / 60000) : null;
+    const st = p.conf ? '<span class="pill ok">fechado</span>' : (p.lac ? '<span class="pill warn">em rota</span>' : '<span class="pill">emitido</span>');
+    h += `<tr>
+      <td class="mono">${esc(p.t)}</td><td>${PONTOS[p.ponto] || p.ponto}</td>
+      <td>${esc(p.dest || '—')}</td><td class="mono">${esc(p.lacre || '—')}</td>
+      <td>${hhmm(p.emit)}</td><td>${hhmm(p.lac)}</td><td>${hhmm(p.conf)}</td>
+      <td class="r">${exp !== null ? exp + ' min' : st}</td>
+      <td><button class="ghost" style="padding:4px 9px" onclick="prox(${i})">${p.conf ? 'ok' : (p.lac ? 'Confirmar' : 'Lacrar')}</button></td></tr>`;
+  });
+  document.getElementById('t-exp').innerHTML = h + '</tbody>';
+
+  const abertos = db.pedidos.filter(p => !p.conf).length;
+  const tempos = db.pedidos.filter(p => p.lac && p.conf).map(p => (new Date(p.conf) - new Date(p.lac)) / 60000);
+  const med = tempos.length ? Math.round(tempos.reduce((a,b) => a+b, 0) / tempos.length) : 0;
+  document.getElementById('e-kpi').innerHTML =
+    kpi('Emitidos', db.pedidos.length, 'no período') +
+    kpi('Linha aberta', abertos, abertos ? 'sem confirmação' : 'tudo confirmado') +
+    kpi('Expedição média', med ? med + ' min' : '—', 'lacre até chegada') +
+    kpi('Confirmados', db.pedidos.length - abertos, 'com hora registrada');
+}
+window.prox = function(i) {
+  const p = db.pedidos[i];
+  if (!p.lac) p.lac = new Date().toISOString();
+  else p.conf = new Date().toISOString();
+  save(); renderExp(); renderPainel();
+};
+
+/* ============================================================
+   SOBRA
+   ============================================================ */
+document.getElementById('s-add').onclick = function() {
+  const pes = parseFloat(document.getElementById('s-pes').value) || 0;
+  if (!pes) return;
+  db.sobras.push({
+    orig: document.getElementById('s-orig').value,
+    pes: pes,
+    dest: document.getElementById('s-dest').value,
+    ts: new Date().toISOString()
+  });
+  save(); renderSobra();
+  document.getElementById('s-pes').value = 0;
+};
+function renderSobra() {
+  const tot = db.sobras.reduce((a,s) => a + nz(s.pes), 0);
+  const func = db.sobras.filter(s => s.dest === 'Funcionário').reduce((a,s) => a + nz(s.pes), 0);
+  const desc = db.sobras.filter(s => s.dest === 'Descarte').reduce((a,s) => a + nz(s.pes), 0);
+  document.getElementById('s-kpi').innerHTML =
+    kpi('Sobra registrada', num(tot) + ' g', db.sobras.length + ' registros') +
+    kpi('Para funcionário', num(func) + ' g', tot ? pct(func/tot) + ' do total' : '—') +
+    kpi('Descarte', num(desc) + ' g', tot ? pct(desc/tot) + ' do total' : '—');
+
+  let h = '<thead><tr><th>Origem</th><th class="r">Peso</th><th>Destino</th><th>Hora</th></tr></thead><tbody>';
+  db.sobras.slice().reverse().slice(0, 40).forEach(function(s) {
+    h += `<tr><td>${esc(s.orig)}</td><td class="r">${num(s.pes)} g</td>
+      <td><span class="pill ${s.dest === 'Funcionário' ? 'ok' : (s.dest === 'Descarte' ? 'bad' : 'warn')}">${esc(s.dest)}</span></td>
+      <td class="dim">${hhmm(s.ts)}</td></tr>`;
+  });
+  document.getElementById('t-sobra').innerHTML = h + '</tbody>';
+}
+
+/* ---------- utilidades de dados ---------- */
+document.getElementById('exp').onclick = function() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'caldeira_dados.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+document.getElementById('rst').onclick = function() {
+  if (!confirm('Zerar canal, expedição e sobra? Itens e fichas permanecem.')) return;
+  db.canal = []; db.pedidos = []; db.sobras = [];
+  save(); renderCanal(); renderExp(); renderSobra(); renderPainel();
+};
+
+/* ---------- inicialização ---------- */
+document.getElementById('c-lit').value = db.cuba.lit;
+document.getElementById('c-un').value = db.cuba.un;
+document.getElementById('c-pr').value = db.cuba.pr;
+document.getElementById('c-cub').value = db.cuba.cub;
+document.getElementById('c-por').value = db.cuba.por;
+document.getElementById('c-cic').value = db.cuba.cic;
+
+renderPainel(); renderItens(); renderRascunho(); renderFichas();
+renderFritura(); renderCanal(); renderReq(); renderExp(); renderSobra();
+</script>
+</body>
+</html>
